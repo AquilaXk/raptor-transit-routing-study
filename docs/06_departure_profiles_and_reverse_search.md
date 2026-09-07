@@ -4,9 +4,9 @@
 
 ## A range is not a pile of minute samples
 
-The rider asks, “What changes if I leave between 07:59 and 08:12?” A loop that queries 07:59, 08:00, 08:01, and so on can miss second-level catchability. Even querying many exact times independently doesn't demonstrate the retained-label range algorithm required by the EasySubway target.
+The rider asks, “What changes if I leave between 07:59 and 08:12?” A loop that queries 07:59, 08:00, 08:01, and so on can miss second-level catchability. Even querying many exact times independently doesn't demonstrate the retained-label range algorithm implemented in this repository.
 
-[Backend #308](https://github.com/AquilaXk/easysubway-backend/issues/308) asks for actual departure events, latest-to-earliest processing, marked scans, and safe round-label reuse. The runnable `rraptor` follows those mechanics for the lab's restricted model.
+[`rraptor`](../src/profile.py) derives actual departure events, processes them latest to earliest, and uses marked scans with retained round labels. The following sections explain those mechanics for the lab's restricted model.
 
 ## Derive the actual origin-ready events
 
@@ -32,7 +32,7 @@ The code copies dictionaries and immutable path tuples for clarity. It reports r
 
 Our profile's observable signature is the nondominated set of arrival-time/boarding-count pairs. Adjacent intervals with the same signature can merge. We retain a later feasible witness so an earlier-ready rider can wait for it.
 
-That is narrower than retaining every distinct physical journey, accessibility preference, safety representative, or walking tradeoff. The full target's breakpoint equivalence must follow its complete frontier semantics. A pair of intervals that look equal to the scalar lab might differ under a least-walking or safest-connection objective.
+That is narrower than retaining every distinct physical journey, accessibility preference, safety representative, or walking tradeoff. A multicriteria extension must define interval equivalence using every objective it promises to preserve. A pair of intervals that look equal to the scalar lab might differ under a least-walking or safest-connection objective.
 
 Walking-only arrivals are another trap. If you can walk directly from origin to destination in 300 seconds, arrival is `ready + 300`, not a constant step function. This lab rejects walking-only O/D profiles with `UNSUPPORTED_LAB_PROFILE` rather than claiming constant segments are exact. A full profile engine can represent the necessary affine pieces.
 
@@ -50,7 +50,7 @@ The lab finds a conservative finite horizon from the latest admitted trip arriva
 
 This is why the demo's last departure can be 08:10 in a tiny morning-only fixture, and the overnight fixture can arrive at 24:06. Neither result is tied to 23:59 or an arbitrary service-day cutoff.
 
-The completed-issue target in [Backend #309](https://github.com/AquilaXk/easysubway-backend/issues/309) must also handle multi-date occurrence semantics, active calendars, exact frequency treatment, accessibility, realtime applicability, and the full frontier. Those are not silently supplied by the toy horizon calculation.
+Extending last connection across dates would require selecting active calendars, identifying each dated trip occurrence, defining exact frequency treatment, and applying the appropriate realtime and walking evidence. The one-day horizon calculation supplies none of those steps; see [Chapter 03](03_service_days_and_timetables.md).
 
 ## The oracle is allowed to be slow
 

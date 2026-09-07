@@ -24,7 +24,7 @@ The fixture's repeated `a` characters are deliberately fake. Never promote them 
 
 A weekly calendar says which weekdays normally operate. An explicit exception can add or remove a service on a particular date. `service_active` demonstrates that override order.
 
-The completed-issue target must also select the correct set of service dates for a request window. A cutoff can help identify candidate dates; it isn't the last train time. An overnight occurrence may start in the predecessor date and end after the wall-clock day changes. The target in [Backend #308](https://github.com/AquilaXk/easysubway-backend/issues/308) and [#310](https://github.com/AquilaXk/easysubway-backend/issues/310) preserves those relationships while retaining the same request-bound bundle generation.
+A multi-date extension must select every service date whose trips could intersect the request window. An overnight occurrence may start on the preceding date and end after midnight. A cutoff can help identify candidate dates; it is not the last train time. Keep each occurrence attached to its original date, apply its calendar exceptions, and combine dates only from one consistent input generation.
 
 The lab does not implement that multi-date loader or merger. Its `rraptor` function receives one resolved timetable. That scope is deliberate and visible rather than hidden behind an approximate date loop.
 
@@ -34,7 +34,7 @@ A headway description isn't automatically an exact list of train departures. Bef
 
 Our fixtures contain explicit trips only. We do not generate plausible trains from incomplete data. This keeps the algorithm exercise honest while leaving the source-ingestion problem where it belongs.
 
-For the input format's semantics, consult [GTFS frequencies](https://gtfs.org/documentation/schedule/reference/#frequenciestxt). For the EasySubway target, use the exact expansion/selection requirement in [Backend #308](https://github.com/AquilaXk/easysubway-backend/issues/308).
+For optional input-format background, see [GTFS frequencies](https://gtfs.org/documentation/schedule/reference/#frequenciestxt). The local rule is sufficient for this lab: only explicit, validated trip events enter the router; a headway alone does not create a boardable departure.
 
 ## Realtime occurrence identity
 
@@ -44,11 +44,11 @@ The same trip ID can occur on different service dates. In a multi-day system, a 
 
 `apply_snapshot` rejects a different bundle/day, an unknown occurrence, or an expired/future observation. It revalidates the no-overtaking pattern after applying updates. A missing update for a known trip inside a valid snapshot means unchanged under this toy contract; it is not permission to substitute a stale or absent snapshot.
 
-## Data ownership in EasySubway
+## Input validation is not source verification
 
-Assuming the relevant issues are complete, Data admits official source evidence, proves timetable/topology identity, and produces immutable routing input. Backend compiles that admitted input. Neither Mobile nor a routing request should scrape a source and guess around a gap.
+[fixtures.py](../src/fixtures.py) constructs invented input, [timetable.py](../src/timetable.py) validates its structure, and [route_index.py](../src/route_index.py) compiles it. These stages do not download feeds or verify external evidence.
 
-The Data work around [source-native trip/topology evidence](https://github.com/AquilaXk/easysubway-data/issues/454) and [realtime source coverage](https://github.com/AquilaXk/easysubway-data/issues/452) illustrates why retained files and retrieval success are not automatically enough. Do not turn a historical issue count or a downloaded row count into a claim of current nationwide service coverage.
+A future importer would need to establish where each trip and stop sequence came from, which dates it covers, and whether updates refer to those same occurrences. A downloaded row count alone cannot establish completeness. The current lab makes no claim about real service coverage.
 
 ## Exercise and answer
 

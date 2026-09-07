@@ -1,8 +1,8 @@
 """Event-based, latest-to-earliest rRAPTOR with retained round labels.
 
 Scope: integer-second windows, one admitted service date, static walking,
-arrival/boarding objectives, and transit-required O/D pairs. This is not the
-complete EasySubway Journey Profile V1 contract or its multicriteria frontier.
+arrival/boarding objectives, and transit-required O/D pairs. Multi-date merging,
+affine walking-only profiles, and multicriteria routing are not implemented.
 """
 from dataclasses import dataclass
 from .accessibility import WalkPolicy

@@ -1,4 +1,4 @@
-"""Invented data only. These ids, times, and hashes are NOT EasySubway sources."""
+"""Invented data only. These ids, times, and hashes are not real transit data."""
 from datetime import date
 from .service_time import parse_time as t
 from .timetable import Timetable, Route, Trip, Footpath

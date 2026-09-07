@@ -8,7 +8,7 @@ Imagine a rider standing outside a station at 08:00. They need a step-free journ
 
 The “shortest line on the map” can't answer all of that. It doesn't say whether the first train has left. It doesn't know that a short stairway is unusable for this request. It doesn't tell you whether the arrival time means “train reaches the platform” or “rider completes the exit.”
 
-That's the setting for this repository. The fixture is small on purpose, but the questions match the completed-issue EasySubway target.
+That's the setting for this repository. The fixture is small enough to trace by hand, and every stage is implemented or explicitly identified as an extension.
 
 ## What the round buys you
 
@@ -23,17 +23,16 @@ The [original RAPTOR paper](https://www.microsoft.com/en-us/research/publication
 Use this table to connect product requirements to executable learning evidence.
 Algorithm choice does not establish that the required input is available.
 
-| Request or input condition | Model or admission decision | Lab evidence | EasySubway target |
-|---|---|---|---|
-| One origin-ready instant; arrival/boarding tradeoff | Point RAPTOR | `example_routing.py`, `test_raptor.py` | Backend #306 |
-| Every change across an origin-ready window | Event-driven rRAPTOR | `test_profiles.py`, notebook 02 | Backend #308 |
-| Completed arrival deadline or latest connection | Reverse scans plus admitted service-date scope | `reverse.py`, `test_oracle.py` | Backend #309 |
-| Preserve low walking, accessibility burden or safe connections | Richer intermediate state and versioned representative policy | `example_walking_tradeoff.py`; full McRAPTOR remains unimplemented | Backend #307 |
-| Trips overtake or differ in pickup/drop-off masks | Split compatible patterns before this scan; reject incompatible input | `test_invariants.py` | Data admission and Backend compilation |
-| Calendar, occurrence or required access evidence is unresolved | Typed admission failure before claiming a journey | Chapters 03 and 05; multi-date admission remains unimplemented | Backend #310 and Data contracts |
+| Request or input condition | Model or admission decision | Local evidence and scope |
+|---|---|---|
+| One origin-ready instant; arrival/boarding tradeoff | Point RAPTOR | [Point example](../example_routing.py), [routing tests](../tests/test_raptor.py) |
+| Every change across an origin-ready window | Event-driven rRAPTOR | [Profile tests](../tests/test_profiles.py), [notebook 02](../notebooks/02_service_days_and_profiles.ipynb); one service date |
+| Completed arrival deadline or latest connection | Reverse scans over admitted events | [reverse.py](../src/reverse.py), [oracle tests](../tests/test_oracle.py) |
+| Preserve low walking, accessibility burden or safe connections | Richer intermediate state | [Walking counterexample](../example_walking_tradeoff.py); full McRAPTOR is not implemented |
+| Trips overtake or differ in pickup/drop-off masks | Reject incompatible scan patterns | [Invariant tests](../tests/test_invariants.py); automatic pattern splitting is not implemented |
+| Calendar, occurrence or access evidence is unresolved | Resolve input before claiming a journey | [Chapter 03](03_service_days_and_timetables.md), [Chapter 05](05_transfers_accessibility_and_identity.md); multi-date admission is not implemented |
 
-The [source register](04_easysubway_end_to_end.md#source-and-assumption-register)
-links these issue targets. The table is a selection guide, not a claim of feature activation.
+The [end-to-end walkthrough](04_easysubway_end_to_end.md) connects these modules. This table identifies what the lab can demonstrate and what requires a different input or state model.
 
 ## A line, a pattern, and a trip are different things
 
@@ -43,13 +42,11 @@ An express and an all-stop service may share a line name but not a stop pattern.
 
 That rejection is useful. It turns an implicit assumption into an executable boundary. A production importer may split or compile such services more intelligently, but it must not silently pretend the assumption holds.
 
-## Read EasySubway as two layers
+## Follow the local implementation
 
-The [Backend route planner reviewed for this guide](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java) provides a concrete code walkthrough. Its marked-stop collection and pattern scan help make the algorithm tangible.
+Read [raptor.py](../src/raptor.py) for the round loop, [route_index.py](../src/route_index.py) for marked-route selection, and [route_scan.py](../src/route_scan.py) for the active-trip scan. The [routing tests](../tests/test_raptor.py) connect these steps to observable arrivals.
 
-The completed-issue architecture is the second layer: Journey-native commands, forward and reverse profiles, versioned frontier policy, and request-bound operational evidence. [Backend #25](https://github.com/AquilaXk/easysubway-backend/issues/25) coordinates that target. We assume it is implemented when discussing the intended product, but we do not relabel inactive code as active production.
-
-This distinction prevents two learning mistakes. One is treating a toy algorithm as an entire deployed system. The other is treating every detail of a transitional adapter as an enduring algorithm requirement.
+Then read [Chapter 04](04_easysubway_end_to_end.md) to follow input validation, calculation, and path checking together. The runnable examples establish the lab's behavior. Multi-date loading, signed input verification, and full multicriteria state remain separate extension problems, explained in the relevant chapters.
 
 ## Try this before reading more
 

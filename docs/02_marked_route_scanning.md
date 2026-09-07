@@ -8,7 +8,7 @@ After a round, some stops have improved labels and most do not. A route that tou
 
 For each affected route, remember the earliest marked position in a forward scan. If `A` and `C` both mark the same `A-B-C-D` pattern, scanning from `A` covers both opportunities. Don't scan the same route twice just because two stops marked it.
 
-The lab's [`affected_routes`](../src/route_index.py) returns one position per route. The [pinned EasySubway planner](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java) has a comparable `collectMarkedPatterns` step and `firstMarkedPosition` workspace. Use that as a conceptual bridge, not as a claim that the Python and Java state models are identical.
+The lab's [`affected_routes`](../src/route_index.py) returns one position per route: the earliest occurrence touched by an improved stop. [`raptor`](../src/raptor.py) passes that position to [`scan_route`](../src/route_scan.py), so each affected pattern is scanned once per round.
 
 ## The active trip is the heart of the scan
 
@@ -32,7 +32,7 @@ The fixture gives transfer platforms different IDs (`X` and `Y`). That lets the 
 
 For a loop pattern such as `A-B-A-C`, both positions of `A` belong in the index. The forward queue uses the minimum marked position; a reverse queue uses the maximum. The route scan still visits each position, so reaching the second occurrence can matter even if the first departure is already gone.
 
-Source-native stop sequence and stable identity are admission concerns. Never infer sequence from spreadsheet row order or join two providers only because their display names look alike. The EasySubway Data issues [#454](https://github.com/AquilaXk/easysubway-data/issues/454) and [#455](https://github.com/AquilaXk/easysubway-data/issues/455) are useful examples of that boundary.
+Stop sequence and stable identity are input requirements. Never infer sequence from arbitrary row order or join stops only because their display names look alike. In [timetable.py](../src/timetable.py), a `Route` supplies its ordered stop tuple explicitly; the index retains each occurrence of a repeated stop.
 
 ## Walking closure is a separate step
 
@@ -44,7 +44,7 @@ The [paper](https://www.microsoft.com/en-us/research/wp-content/uploads/2012/01/
 
 In one round, the transit work depends on the positions of affected patterns and their trip lookups. The code compiles departure arrays so each lookup is a binary search instead of sorting or constructing the entire array inside the scan. It still copies path tuples for clarity, which can cost much more than compact production predecessor records.
 
-Walking closure has its own graph-search cost. Profile processing multiplies some work by relevant event iterations but can reuse labels. None of this implies a production p95 for EasySubway. Use measured operation counts here, and deployed request-bound evidence for production.
+Walking closure has its own graph-search cost. Profile processing multiplies some work by relevant event iterations but can reuse labels. None of this implies a deployed service's latency percentile. Use measured operation counts here, and deployed request-bound evidence for production.
 
 ## Read the files in this order
 
