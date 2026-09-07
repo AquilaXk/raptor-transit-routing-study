@@ -45,7 +45,7 @@ That rejection is useful. It turns an implicit assumption into an executable bou
 
 ## Read EasySubway as two layers
 
-At the inspected Backend main commit, [`RouteTimetableRaptorPlanner.java`](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java) is a concrete code-reading anchor. Its marked-stop collection and pattern scan help make the algorithm tangible.
+The [Backend route planner reviewed for this guide](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java) provides a concrete code walkthrough. Its marked-stop collection and pattern scan help make the algorithm tangible.
 
 The completed-issue architecture is the second layer: Journey-native commands, forward and reverse profiles, versioned frontier policy, and request-bound operational evidence. [Backend #25](https://github.com/AquilaXk/easysubway-backend/issues/25) coordinates that target. We assume it is implemented when discussing the intended product, but we do not relabel inactive code as active production.
 
