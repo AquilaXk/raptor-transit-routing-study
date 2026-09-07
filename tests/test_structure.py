@@ -10,7 +10,6 @@ REQUIRED_FILES = {
     'LICENSE',
     'README.md',
     'assets/banner.jpg',
-    'assets/easysubway_architecture.jpg',
     'assets/profile_breakpoints.png',
     'assets/round_labels.png',
     'assets/round_scan.jpg',
@@ -86,7 +85,7 @@ def test_notebook_structure_has_no_stored_errors():
         assert all(output.get("output_type") != "error" for cell in code for output in cell.get("outputs", []))
 
 def test_learning_material_local_links_exist():
-    for path in [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md")),
+    for path in [ROOT / "README.md", ROOT / "README.ko.md", *sorted((ROOT / "docs").glob("*.md")),
                  *sorted((ROOT / "notebooks").glob("*.ipynb"))]:
         text = path.read_text()
         if path.suffix == ".ipynb":

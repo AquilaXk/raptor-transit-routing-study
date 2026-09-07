@@ -4,15 +4,15 @@
 
 ![RAPTOR Study: from timetable events to trustworthy journeys](assets/banner.jpg)
 
-**A hands-on guide to round-based public transit routing, with EasySubway as the engineering context.**
+**A self-contained, hands-on guide to round-based public transit routing.**
 
 Python 3.11+ · MIT · English · No algorithm runtime dependencies
 
 Let's build the mental model first, trace a tiny network by hand, and then run the code. After that, we'll connect the algorithm to the parts that make a real journey service trustworthy: service dates, walking, accessibility, realtime identity, bounded frontiers, and honest failure behavior.
 
-Here, **RAPTOR means the public transit routing algorithm**, not the similarly named retrieval technique for language models. This is an original learning repository, not a fork of the EasySubway production runtime.
+Here, **RAPTOR means the public transit routing algorithm**, not the similarly named retrieval technique for language models. This repository contains original explanations and a small executable implementation.
 
-> **How to read the EasySubway examples.** Code walkthroughs use the [Backend implementation reviewed on September 7, 2026](https://github.com/AquilaXk/easysubway-backend/tree/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa). Later chapters also explain the planned architecture as a learning target; they do not claim that every feature is already deployed. All runnable timetables, identifiers, and hash-shaped values in this repository are invented fixtures.
+> **Learning principle.** Every walkthrough can be followed using this repository's explanations, code, examples, and tests. Research and standards links provide optional background. Implemented behavior and possible extensions are distinguished explicitly. All runnable timetables, identifiers, and hash-shaped values are invented fixtures.
 
 ## Contents
 
@@ -22,7 +22,7 @@ Here, **RAPTOR means the public transit routing algorithm**, not the similarly n
 4. [Marked routes and one active trip](#4-marked-routes-and-one-active-trip)
 5. [Time belongs to a service day](#5-time-belongs-to-a-service-day)
 6. [Walking and accessibility are part of the journey](#6-walking-and-accessibility-are-part-of-the-journey)
-7. [Where RAPTOR sits in EasySubway](#7-where-raptor-sits-in-easysubway)
+7. [Follow a journey through this repository](#7-follow-a-journey-through-this-repository)
 8. [Why the fastest label is not the whole frontier](#8-why-the-fastest-label-is-not-the-whole-frontier)
 9. [Departure profiles, arrive-by, and last connection](#9-departure-profiles-arrive-by-and-last-connection)
 10. [Read the paper with a purpose](#10-read-the-paper-with-a-purpose)
@@ -41,7 +41,7 @@ RAPTOR organizes the search around **how many vehicles you've boarded**. That ma
 
 That does **not** mean timetable compilation disappears. Stop indexes, scan patterns, calendar admission, and trustworthy input still matter. It means the routing method doesn't depend on a heavyweight graph-shortcut preprocessing scheme just to express the basic search.
 
-For EasySubway, the useful question is bigger than “Can RAPTOR find a fast train?” It's “Can the server return an explainable, accessible, identity-consistent journey, or fail without inventing one?”
+The useful question is bigger than “Can RAPTOR find a fast train?” It's “Can the calculation return an explainable, accessible, identity-consistent journey, or fail without inventing one?”
 
 Start with the [application decision table](docs/00_why_transit_needs_raptor.md#decide-which-raptor-model-the-request-needs)
 to distinguish point, range, reverse and multicriteria requirements, their input
@@ -129,7 +129,7 @@ assert seconds == 86760
 assert service_instant(date(2026, 9, 7), seconds).isoformat() == "2026-09-08T00:06:00+09:00"
 ```
 
-In the completed-issue EasySubway target, calendar exceptions, cutoff-crossing windows, predecessor-day occurrences, exact frequency semantics, and realtime applicability all belong to admission and query semantics. They cannot be repaired by a display formatter. See [service days and timetables](docs/03_service_days_and_timetables.md).
+Calendar exceptions, windows crossing service dates, overnight occurrences, frequency semantics, and realtime applicability determine which trips a query may use. They cannot be repaired by a display formatter. The lab handles one supplied service date; [service days and timetables](docs/03_service_days_and_timetables.md) explains the additional work a multi-date extension would need.
 
 ## 6. Walking and accessibility are part of the journey
 
@@ -137,37 +137,31 @@ The journey starts before the first train and ends after the last platform arriv
 
 Walking closure matters. If `A -> B` and `B -> C` exist, a single pass over arbitrarily ordered edges may never discover `C`. This lab computes shortest-walk closure with a heap. That is a deliberate implementation choice for arbitrary nonnegative walking graphs; it does not turn the transit route scan into Dijkstra.
 
-Strict step-free mode excludes known stairs. Unknown or unverified evidence triggers a typed admission failure under the lab's conservative snapshot-wide policy. This is stricter and simpler than EasySubway's richer scoped evidence model, not an implementation of that entire model.
+Strict step-free mode excludes known stairs. Unknown or unverified evidence triggers a typed admission failure under the lab's conservative snapshot-wide policy. Even an unrelated unknown edge rejects a strict query; selecting evidence only for the relevant query scope is not implemented.
 
 One label per stop and round is sound here only because walking durations and boarding slack are fixed for the request, waiting is allowed, and the routing objective is arrival time plus boarding count. Incoming-line-specific transfer rules or path-dependent accessibility can require a richer state. Don't hide them in a station-level constant.
 
 Read [transfers, accessibility, and identity](docs/05_transfers_accessibility_and_identity.md) before adapting this code to any real data.
 
-## 7. Where RAPTOR sits in EasySubway
+## 7. Follow a journey through this repository
 
-![EasySubway ownership and immutable routing inputs](assets/easysubway_architecture.jpg)
+Start with [example_routing.py](example_routing.py) and follow the same input through these stages:
 
-The learning target follows the five-repository ownership model documented in [Hub #2742](https://github.com/AquilaXk/easysubway/issues/2742) and [Hub #1393](https://github.com/AquilaXk/easysubway/issues/1393):
+| Stage | Local implementation | Responsibility |
+|---|---|---|
+| Construct input | [fixtures.py](src/fixtures.py), [timetable.py](src/timetable.py) | Build invented trips and directed walks; reject malformed input |
+| Compile indexes | [route_index.py](src/route_index.py) | Record stop occurrences and trip departure arrays |
+| Admit the query | [accessibility.py](src/accessibility.py), [raptor.py](src/raptor.py) | Validate query bounds and walking evidence |
+| Calculate | [raptor.py](src/raptor.py), [route_scan.py](src/route_scan.py), [footpaths.py](src/footpaths.py) | Scan one boarding round and close permitted walks |
+| Explain and check | [round_state.py](src/round_state.py), [journey.py](src/journey.py) | Extract alternatives and validate their path witnesses |
 
-| Owner | What the router should receive or provide |
-|---|---|
-| Data | Admitted, immutable `server-route-bundle`; separate map and station-catalog products |
-| Backend | The authoritative Journey calculation and typed result/failure |
-| Mobile | Generated contract consumption and accessible presentation, not a local backup router |
-| Platform | Source-free deployment, immutable activation, and capability-aware readiness |
-| Hub | Cross-repository coordination and final evidence/identity decisions |
-
-In the reviewed implementation, the [algorithm decision record](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/tools/routes/route-algorithm-v2-adr.json) marks single-departure RAPTOR active and profile modes inactive pending PR #312. This describes the code's declared capabilities, not a live deployment measurement.
-
-The [Backend route planner](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java) contains marked-stop collection, earliest marked pattern positions, scan workspaces, explicit access transitions, and final EXIT projection. It still receives `SearchRouteV2Command` in the inspected paths. The target in [Backend #306](https://github.com/AquilaXk/easysubway-backend/issues/306) removes that compatibility boundary from Journey-native execution.
-
-So don't treat today's adapter shape or fixed label constants as the finished architecture. The detailed [end-to-end chapter](docs/04_easysubway_end_to_end.md) maps main-code observations to completed-issue responsibilities without claiming they're the same thing.
+The [end-to-end chapter](docs/04_easysubway_end_to_end.md) traces the 08:00 request through these functions, including the distinction between an empty result and a failed calculation.
 
 ## 8. Why the fastest label is not the whole frontier
 
 Compare two labels at the same stop. One arrives at 08:10 after a long walk. Another arrives at 08:11 with much less walking. Keeping only the first is fine for an earliest-arrival objective under this lab's assumptions. It is not enough to preserve a least-walking representative.
 
-EasySubway's [Backend #307](https://github.com/AquilaXk/easysubway-backend/issues/307) defines a broader target: departure time, destination arrival, transfers, walking burden, accessibility burden, and connection slack, with versioned representative and capacity behavior.
+The local `Objective` type in [pareto.py](src/pareto.py) adds departure time, arrival, boardings, walking, accessibility burden, and connection slack. These fields define a separate exercise in preserving nondominated choices; they are not all objectives of the scalar router.
 
 The important separation is:
 
@@ -175,7 +169,7 @@ The important separation is:
 public recommendation count != internal state-frontier capacity != profile work budget
 ```
 
-The standalone [frontier module](src/pareto.py) demonstrates dominance, objective-vector deduplication, and failure on capacity loss. It keeps every nondominated vector or raises `RAPTOR_FRONTIER_CAPACITY_EXCEEDED`. It does **not** turn the single-label route scan into full McRAPTOR, and it does not implement every required EasySubway representative tag.
+The standalone [frontier module](src/pareto.py) demonstrates dominance, objective-vector deduplication, and failure on capacity loss. It keeps every nondominated vector or raises `RAPTOR_FRONTIER_CAPACITY_EXCEEDED`. It does **not** turn the single-label route scan into full McRAPTOR or define a passenger-facing recommendation policy.
 
 Run `python example_walking_tradeoff.py` for a concrete intermediate-stop loss:
 the scalar route arrives at 30 after eight seconds of walking, while a feasible
@@ -207,7 +201,7 @@ The [reverse implementation](src/reverse.py) scans routes backward and uses an i
 
 The runnable profile is intentionally limited to one admitted service date, static walking, arrival/boarding objectives, and O/D pairs that require transit. Walking-only profiles need affine, rather than just constant, arrival segments; the lab rejects that unsupported profile domain explicitly. Arrive-by and point queries do support walking-only journeys.
 
-The full EasySubway target in [#305](https://github.com/AquilaXk/easysubway-backend/issues/305), [#308](https://github.com/AquilaXk/easysubway-backend/issues/308), [#309](https://github.com/AquilaXk/easysubway-backend/issues/309), and [#310](https://github.com/AquilaXk/easysubway-backend/issues/310) is broader. Learn the mechanics here; don't mistake this lab for that entire production contract.
+A broader engine would need multi-date occurrence selection, affine walking-only profiles, and intermediate multicriteria state. [Chapter 06](docs/06_departure_profiles_and_reverse_search.md) explains why the current representation cannot supply those behaviors.
 
 ## 10. Read the paper with a purpose
 
@@ -222,7 +216,7 @@ We use original explanations and worked examples rather than decorative or unver
 ## 11. Repository structure and learning path
 
 The curriculum connects nine chapters, three notebooks, runnable examples and
-focused tests. Each component explains a RAPTOR invariant or an EasySubway
+focused tests. Each component explains a RAPTOR invariant or an input-validation
 application boundary. New learning resources can be added without a file-count cap.
 
 ```text
@@ -239,7 +233,7 @@ raptor-study/
 ├── pytest.ini
 ├── requirements.txt
 ├── requirements-ci.txt
-├── assets/       # 6 diagrams: 4 JPG, 2 PNG
+├── assets/       # 5 diagrams: 3 JPG, 2 PNG
 ├── docs/         # 9 numbered chapters, 00–08
 ├── notebooks/    # 3 executable notebooks, 01–03
 ├── papers/       # 1 original reading companion PDF
@@ -258,7 +252,7 @@ Notebook execution is a separate CI check.
 | Trace the invariant | [01 — Rounds and labels](docs/01_rounds_labels_and_pareto.md) | Notebook 01 |
 | Understand the scan | [02 — Marked route scanning](docs/02_marked_route_scanning.md) | `route_scan.py` |
 | Admit real time semantics | [03 — Service days](docs/03_service_days_and_timetables.md) | Notebook 02 |
-| Connect the service | [04 — EasySubway end to end](docs/04_easysubway_end_to_end.md) | Main/issue source matrix |
+| Connect the calculation | [04 — A journey end to end](docs/04_easysubway_end_to_end.md) | Local function and evidence map |
 | Keep journeys trustworthy | [05 — Access and identity](docs/05_transfers_accessibility_and_identity.md) | Failure tests |
 | Go beyond a point query | [06 — Profiles and reverse](docs/06_departure_profiles_and_reverse_search.md) | `example_journey_profiles.py` |
 | Preserve useful alternatives | [07 — Frontiers and extensions](docs/07_multicriteria_frontiers_and_extensions.md) | Notebook 03 |
@@ -266,7 +260,7 @@ Notebook execution is a separate CI check.
 
 **Implemented in this lab:** marked point RAPTOR; directed walking closure; basic hard access admission; service-time helpers; restricted label-reusing rRAPTOR; native reverse arrive-by; restricted last connection; standalone bounded objective frontier; simplified bound realtime overlay; work/deadline/cancellation failures; independent tiny-network oracle.
 
-**Explained, not claimed as implemented:** complete Journey V3/Profile V1 wire contracts, multi-date profile merging, GTFS/frequency ingestion, full McRAPTOR state and representative tags, signed artifact verification, live providers, mobile UI, K3s activation, fare calculation, and deployed performance acceptance.
+**Extension boundaries:** multi-date profile merging, frequency ingestion, full McRAPTOR state, and signed input verification are discussed but not implemented. This repository supplies no network API, live provider, passenger UI, deployment system, or fare calculation.
 
 ## 12. Run the examples and tests
 
@@ -309,16 +303,13 @@ A failed admission, exhausted budget, cancellation, or stale overlay raises a ty
 
 ## 13. Beyond the lab
 
-Keep this repository separate from the five EasySubway product repositories. It teaches the algorithm and the surrounding contracts; it should not become a new provider service or another routing authority.
+Keep explanations self-contained: introduce the concept here, link to local implementation or evidence, and state unsupported behavior directly. An extension should begin with a small fixture and a precise invariant readers can verify within this repository.
 
 The [CI workflow](.github/workflows/ci.yml) runs the full test suite, all three
 examples and fresh notebook kernels on Python 3.11.14 and 3.14.6. It uses read-only
 repository permissions and commit-pinned actions. Notebook outputs are cleared
 in memory before execution; stored output is never treated as fresh evidence.
 For verification without the JupyterLab UI, install `requirements-ci.txt`.
-The delivery's initial-publishing script stays outside the source tree.
-
-The publishing script proposes a private repository by default, a `main` branch, issues and discussions enabled, wiki and projects disabled, squash-only merging, automatic merged-branch cleanup, and relevant repository topics. It can request main-branch protection explicitly. Actual remote settings must be read back after creation; none should be described as applied merely because a script exists.
 
 For a contribution, reproduce the problem with a tiny fixture first. Add a failing invariant or oracle test, make the smallest implementation change, and explain its assumptions. Never “fix” a test by weakening strict accessibility, silently capping a frontier, fabricating source data, or adding a success fallback.
 
@@ -330,7 +321,7 @@ Do not commit credentials, official feeds without redistribution rights, passeng
 
 **Timetable semantics.** [GTFS Schedule reference](https://gtfs.org/documentation/schedule/reference/), especially service times, stop times, calendars, frequencies, and transfers. The toy schema is intentionally smaller and is not described as GTFS compliant.
 
-**Project context.** EasySubway main and linked issue targets, reviewed on **September 7, 2026**. [Chapter 04](docs/04_easysubway_end_to_end.md#source-and-assumption-register) records the source and assumption boundary. Issue pages can change; the Backend main-code observations use immutable commit links.
+**Implementation evidence.** [Chapter 04](docs/04_easysubway_end_to_end.md) maps the walkthrough to this repository's functions and tests. External research and standards are attribution and optional further reading; another project's code or issue tracker is not a prerequisite.
 
 ```bibtex
 @inproceedings{delling2012round,

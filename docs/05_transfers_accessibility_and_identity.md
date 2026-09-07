@@ -6,7 +6,7 @@
 
 A strict accessibility constraint is not a preference weight. A stair-only connection doesn't become usable because its travel time is excellent. Similarly, a missing required operational-evidence field doesn't become “probably fine” because an elevator is installed at the station.
 
-EasySubway's target evidence concerns include [Mobile #29](https://github.com/AquilaXk/easysubway-mobile/issues/29) and [Data #478](https://github.com/AquilaXk/easysubway-data/issues/478). Installation evidence and operational verification have different meanings; retrieval time is not automatically the time a facility's operating status was verified.
+Installation evidence and operational verification have different meanings: knowing an elevator exists does not prove it is operating. Likewise, a retrieval timestamp does not establish when its condition was checked. The lab supplies explicit evidence flags rather than attempting to infer either fact.
 
 The lab makes this distinction visible with `step_free` and `verified`. Known stairs are excluded in strict mode. Unknown/unverified edges trigger `ACCESSIBILITY_UNAVAILABLE` under a conservative whole-snapshot admission policy. This is a teaching simplification, not the full production scoping rule.
 
@@ -14,9 +14,9 @@ The lab makes this distinction visible with `step_free` and `verified`. Known st
 
 ENTRY gets the rider from the origin endpoint to the first boarding platform. TRANSFER connects an alighting state to the next boarding state. EXIT gets the rider from the final platform to the destination endpoint.
 
-Our synthetic fixture gives these separate directed edges. It never infers an opposite-direction edge. The duration factor in `WalkPolicy` changes the duration of each permitted edge with an explicit round-up rule. Its default and the example's 60-second boarding slack are lab choices, not EasySubway policy values.
+Our synthetic fixture gives these separate directed edges. It never infers an opposite-direction edge. The duration factor in `WalkPolicy` changes the duration of each permitted edge with an explicit round-up rule. Its default and the example's 60-second boarding slack are lab choices, not universal transit policy values.
 
-A real state may also need incoming line, platform, transition identity, mobility profile, and path-specific evidence. The pinned Java planner's access-transition handling is a useful reminder that station arrival and next-platform readiness are not interchangeable.
+A richer state may need the incoming line, platform, transition identity, mobility profile, and path-specific evidence. In this fixture, arriving at `X` is not readiness at `Y`: the directed transfer consumes 120 seconds before boarding slack is added.
 
 ## Explain closure with a bad edge order
 
@@ -28,9 +28,9 @@ A negative walking duration is rejected at input construction. We don't “repai
 
 ## Bind once, then calculate
 
-The target in [Backend #308](https://github.com/AquilaXk/easysubway-backend/issues/308) binds the route bundle, realtime overlay, accessibility snapshot, algorithm identity, frontier policy, and calculation instant across a profile. A result assembled from different generations isn't a coherent journey just because each component was individually valid at some point.
+Keep a single input context throughout a calculation. For a profile, mixing one interval's timetable with another interval's realtime or walking policy can create a set of results that never coexisted. The local profile call receives one compiled timetable and one walking policy for its entire window.
 
-`Snapshot` demonstrates a small part of this: bundle and service date must match, validity is checked, unknown trip occurrences are rejected, and the source timetable isn't mutated. Its update model is intentionally narrow. The core router takes already-admitted input; this repository does not implement a serving endpoint that cryptographically enforces every target identity field.
+[`Snapshot`](../src/realtime.py) demonstrates part of this: bundle and service date must match, validity is checked, unknown trip occurrences are rejected, and the source timetable is not mutated. Its update model is intentionally narrow. Cryptographic verification and a serving endpoint are not implemented.
 
 That boundary matters. A toy hash field isn't a signed descriptor. A frozen Python object isn't an activation receipt. A local test isn't a deployed request observation.
 
@@ -47,15 +47,15 @@ Different failures answer different rider and operator questions.
 | Work/frontier capacity exceeded | Typed capacity error | Completeness could not be preserved |
 | Deadline/cancellation | Typed failure | Partial or late work must not publish |
 
-The production target uses its own closed failure contract. The lab error strings are not advertised as a wire-compatible enum list.
+The error codes belong to the local Python API. This repository defines no network response schema.
 
 Never catch every exception and return the last successful journey. Never re-run a legacy route service to turn a failed authoritative calculation into success. An explicit user retry is a new request with a new valid context, not permission to relabel the failed request.
 
-## Mobile can stay useful without becoming a router
+## Presentation must preserve the calculation's meaning
 
-The target preserves a distinction between verified static map/catalog use and authoritative online journey calculation. If a journey request fails, the app can still show its permitted static content. It cannot present an old route as the successful answer to the new request. See [Mobile #7](https://github.com/AquilaXk/easysubway-mobile/issues/7) and [#45](https://github.com/AquilaXk/easysubway-mobile/issues/45).
+The examples print the current result and print `NO_ROUTE` for an admitted point search with no journey. They do not reuse an earlier successful journey. A future UI should likewise distinguish a completed empty search from a rejected or interrupted calculation.
 
-For temporal modes, Mobile should present server-selected intervals and representatives instead of locally ranking or approximating the timetable. [Mobile #316](https://github.com/AquilaXk/easysubway-mobile/issues/316) provides the target boundary, including accessible temporal controls and state clearing on failure.
+For a profile, use the intervals returned by [`Profile.at`](../src/profile.py). Do not interpolate an invented train between intervals or replace an error with an old interval. A passenger UI and its interaction behavior are outside this lab.
 
 ## Exercise and answer
 

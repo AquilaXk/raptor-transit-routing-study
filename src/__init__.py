@@ -1,4 +1,4 @@
-"""RAPTOR Study: transparent teaching code, not the EasySubway serving runtime."""
+"""RAPTOR Study: transparent teaching code for a restricted timetable model."""
 from .accessibility import WalkPolicy
 from .fixtures import demo_timetable, midnight_timetable
 from .journey import Journey, Label, Leg

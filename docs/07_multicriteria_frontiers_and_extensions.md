@@ -4,11 +4,11 @@
 
 ## One earlier label can still be the wrong representative
 
-Earliest arrival is useful, but EasySubway also cares about walking burden, accessible paths, departure time, transfers, and connection slack. Those criteria can disagree.
+Earliest arrival is useful, but a rider may also care about walking burden, accessible paths, departure time, transfers, and connection slack. Those criteria can disagree.
 
 A label arriving at 08:10 after a long walk might be worse for one rider than an 08:11 label with almost no walking. A connection with ten seconds of remaining slack might be less desirable than one with a comfortable margin. If those distinctions affect a promised representative, discarding the second label at an intermediate stop can destroy the final result.
 
-The full target in [Backend #307](https://github.com/AquilaXk/easysubway-backend/issues/307) makes that a versioned frontier problem rather than an arbitrary display sort.
+The local [frontier exercise](../src/pareto.py) makes that a dominance problem: preserve every nondominated objective vector or report insufficient capacity.
 
 ## Run a path-loss counterexample
 
@@ -48,7 +48,7 @@ Hard constraints come first. An inaccessible route doesn't enter the candidate p
 
 `bounded_frontier` removes dominated and equal objective vectors. If the surviving set exceeds capacity, it raises `RAPTOR_FRONTIER_CAPACITY_EXCEEDED` instead of returning a sliced subset.
 
-That's a deliberately conservative teaching policy. The completed EasySubway target defines particular required representatives and tags, and its internal budgets are distinct from the public recommendation count. A real policy may preserve those requirements without retaining every conceivable nondominated vector, but it must prove which losses are permitted and fail when a required choice would disappear.
+That is a deliberately conservative teaching policy. The public display count and internal search capacity answer different questions. A future recommendation policy would need to define which alternatives must survive, prove that its pruning preserves them, and fail if capacity prevents that guarantee.
 
 The following shortcut has no such proof:
 
@@ -57,7 +57,7 @@ The following shortcut has no such proof:
 labels = sorted(labels, key=lambda label: label.arrival)[:3]
 ```
 
-Even if Mobile displays three cards, the internal search may need many more labels. Reducing internal state to the public display count mixes two different contracts.
+Even if a UI displays three cards, the internal search may need many more labels. Reducing internal state to the public display count mixes two different contracts.
 
 ## What full McRAPTOR would add
 
@@ -67,13 +67,13 @@ Adding `bounded_frontier` after the destination search cannot recover alternativ
 
 To extend the lab properly, start with a tiny counterexample where arrival and walking conflict at an intermediate stop. Build an unbounded multicriteria oracle independent of your bounded production representation. Then introduce the state bag and a named capacity policy. Keep primary and required-representative loss observable.
 
-That sequence mirrors the target's demand for independent exact-frontier evidence without pretending our scalar oracle proves every multicriteria property.
+An independent multicriteria oracle would provide evidence for that extension. The current scalar oracle cannot establish preservation of objectives it does not represent.
 
 ## Optimization needs an admission condition
 
-The original [RAPTOR publication](https://www.microsoft.com/en-us/research/publication/round-based-public-transit-routing/) discusses flexible departure times and additional criteria. The EasySubway coordination target adds a practical rule: optional optimization work must be justified by the admitted graph and measured service need.
+The original [RAPTOR publication](https://www.microsoft.com/en-us/research/publication/round-based-public-transit-routing/) discusses flexible departure times and additional criteria. In this lab, optimization starts with the admitted input model, measured work counters, and an invariant to preserve.
 
-[Backend #311](https://github.com/AquilaXk/easysubway-backend/issues/311) treats early pruning as conditional on the measured bottleneck. [Backend #25](https://github.com/AquilaXk/easysubway-backend/issues/25) likewise separates possible transfer/partitioning extensions from the baseline delivery. “All issues implemented” doesn't mean every named experimental algorithm is automatically enabled; an issue can conclude with a justified no-code disposition.
+For example, inspect `ScanMetrics` before adding an early-pruning rule. If route scans dominate the measured work, propose a rule that removes specific scans and compare all affected results with the independent oracle. If the counters do not reveal that bottleneck, keep the simpler scan.
 
 This guide does not implement ULTRA, Delay-ULTRA, partitioning, or a new fare objective. Naming an extension is not evidence that its prerequisites or correctness proof hold for the current data.
 

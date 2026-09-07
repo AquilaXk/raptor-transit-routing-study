@@ -1,72 +1,85 @@
-# 04 — EasySubway, end to end
+# 04 — A journey through the local lab
 
 [Previous](03_service_days_and_timetables.md) · [Guide](../README.md) · [Next](05_transfers_accessibility_and_identity.md)
 
-## Use the finished-issue system as the destination
+## Start with an executable request
 
-This chapter follows the requested assumption: the relevant EasySubway issues have been implemented. That lets us explain where advanced RAPTOR behavior belongs in the intended product.
+Run `python example_routing.py --ready 08:00:00 --max-transfers 2` from the repository root. Everything needed to explain this request is in [the example](../example_routing.py) and the local modules below. All station IDs, trips, times, and identity values are invented.
 
-It does not let us claim those issues are currently closed, that a feature is active on main, or that deployment evidence exists. We keep a separate record of the source code actually inspected.
+The request starts outside the station at `O`, ends outside the destination at `Z`, allows at most three boardings, and requires step-free walking. Entry, transfer, and exit walks belong to the journey. Boarding slack is 60 seconds for this example.
 
-## What the reviewed Backend implementation shows
+## Construct and compile the input
 
-This walkthrough uses the [Backend implementation reviewed on September 7, 2026](https://github.com/AquilaXk/easysubway-backend/tree/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa). The source links open that exact version, so you can follow the explanation even after the project changes.
+[`demo_timetable`](../src/fixtures.py) supplies three patterns: `R1` from `A` to `X`, `R2` from `Y` to `D`, and `DIRECT` from `A` to `D`. It also supplies the directed walking edges.
 
-The [algorithm decision record](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/tools/routes/route-algorithm-v2-adr.json) declares `MARKED_SINGLE_DEPARTURE_RAPTOR` active for NOW and DEPART_AT. It declares profile modes inactive until PR #312 is terminal. Even the record's `active-production` status string is a code declaration, not a measurement from a deployed instance.
+[`Timetable`, `Route`, and `Trip`](../src/timetable.py) check identifiers, event chronology, stop references, compatible permission masks, and non-overtaking trip order. They reject invalid input instead of guessing a replacement schedule.
 
-In the reviewed [route planner](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java), the inspected sections include a thread-local scan workspace, marked-stop/pattern collection, one-round-at-a-time scanning, and Journey access/ride/exit projection. The command type in these paths is still `SearchRouteV2Command`.
+[`compile_timetable`](../src/route_index.py) builds stop-occurrence, departure, and walking indexes. Repeated visits to the same stop retain distinct positions. Compilation makes the supplied timetable searchable; it does not establish that the invented data came from an official source.
 
-The same inspected code contains a fixed `PARETO_LIMIT`. We do not copy that number into a “finished target” policy. [Backend #306](https://github.com/AquilaXk/easysubway-backend/issues/306) and [#307](https://github.com/AquilaXk/easysubway-backend/issues/307) explicitly require separation between Journey-native input, internal state bounds, and the public recommendation cap.
+## Admit the query before scanning
 
-| Main-code idea | Teaching file | Important difference |
+[`raptor`](../src/raptor.py) validates stop IDs, the ready time, boarding bound, and slack. [`WalkPolicy.admit`](../src/accessibility.py) checks the evidence required by the walking policy. In strict mode, a known stair edge is excluded; unknown or unverified evidence rejects the snapshot.
+
+The [`Work` object](../src/metrics.py) checks work limits, deadlines, and cancellation. Such a failure means the calculation could not complete under its constraints. It must not be reported as a successful search with no route.
+
+## Trace the two useful boarding budgets
+
+Round zero starts with readiness at `O` at 08:00. [Walking closure](../src/footpaths.py) takes the 60-second ENTRY edge to `A`, giving 08:01 platform readiness.
+
+In round one, [the scan](../src/route_scan.py) reads only round-zero labels when boarding. With 60 seconds of slack, the 08:02 `R1` departure is catchable at equality. It reaches `X` at 08:10. The same boarding budget can take `DIRECT` at 08:04, reach `D` at 08:29, and complete EXIT at `Z` at 08:30.
+
+The strict transfer from `X` to `Y` takes 120 seconds. That gives 08:12 readiness at `Y`; another 60 seconds of slack makes the 08:13 `R2` departure catchable in round two. It arrives at `D` at 08:21 and completes EXIT at 08:22.
+
+| Boarding budget | Destination arrival | Why retain it? |
 |---|---|---|
-| Compiled route patterns | `route_index.py` | The lab has a tiny in-memory schema, not the bundle compiler |
-| Marked patterns and first position | `raptor.py`, `route_scan.py` | The lab's state is arrival/boardings only |
-| ENTRY/TRANSFER/EXIT projection | `journey.py`, `footpaths.py` | Synthetic explicit edges, not the full evidence model |
-| Realtime generation association | `realtime.py` | A toy single-day overlay, not a provider adapter |
-| Scan operation counts | `metrics.py` | Local operations only, not deployed evidence receipts |
+| One | 08:30 | No transfer |
+| Two | 08:22 | Earlier arrival with one transfer |
 
-## Follow one request through the target
+Neither choice dominates the other in arrival time and boardings. A display preference should not erase this distinction inside the search.
 
-A rider picks origin, destination, time mode, walking pace, mobility/accessibility settings, transfer bound, and the permitted recommendation count. Mobile validates the local input shape and sends the generated contract. It doesn't decide timetable feasibility or choose a different routing authority when the server fails.
+## Extract a result and check its witness
 
-Backend admits the closed request, resolves its service-date span, binds one route generation and the applicable realtime/accessibility identities, and selects the server-owned algorithm/frontier policy. It applies resource admission before expensive profile work, honors cancellation, and prevents late publication.
+[`SearchResult.journeys`](../src/round_state.py) extracts nondominated arrival/boarding alternatives from immutable rows. Each journey carries the walking and ride legs that explain its arrival.
 
-The router then executes the requested query mode. The resulting journeys include real ENTRY and EXIT semantics, the contract's temporal meanings, and the appropriate representatives. The public projection is a separate step from the internal frontier. A three-card UI does not imply three internal labels.
+The command-line example calls [`Journey.validate`](../src/journey.py), which checks internal chronology. For a stronger check, `validate_against` checks the witness against the actual input: trip identity, ordered stop positions, pickup/drop-off permissions, event times, directed walking edges, and policy-adjusted walking duration.
 
-Platform readiness must expose the capability actually activated. A healthy point-query service is not enough to authorize profile traffic. [Platform #148](https://github.com/AquilaXk/easysubway-platform/issues/148) ties temporal readiness to the relevant identities and resource policy.
+The following can be run from the repository root:
 
-## Keep the five owners separate
+```python
+from src import compile_timetable, demo_timetable, raptor, parse_time, WalkPolicy
 
-[Hub #2742](https://github.com/AquilaXk/easysubway/issues/2742) describes the cross-repository ownership boundary. [Hub #1393](https://github.com/AquilaXk/easysubway/issues/1393) distinguishes `server-route-bundle` from `map-pack` and `station-catalog-pack`.
+timetable = demo_timetable()
+policy = WalkPolicy(strict_step_free=True)
+result = raptor(
+    compile_timetable(timetable), "O", "Z", parse_time("08:00:00"),
+    max_boardings=3, boarding_slack=60, policy=policy,
+)
+for journey in result.journeys():
+    journey.validate_against(timetable, boarding_slack=60, policy=policy)
+```
 
-Data owns admitted source inputs and immutable products. Backend owns route calculation. Mobile consumes map/catalog data and server journeys without becoming a local backup planner. Platform owns source-free deployment and activation. Hub coordinates the final evidence and product-identity decisions.
+[Witness tests](../tests/test_witness.py) deliberately corrupt paths in ways chronology alone cannot detect. A valid witness establishes feasibility under the supplied input; optimality is checked separately using [oracle comparisons](../tests/test_oracle.py).
 
-That split is why this learning repository should stay a sixth, non-serving study repository. It must not acquire provider credentials, activate K3s workloads, publish real route bundles, or become a hidden shared runtime package.
+## Follow related calculations without changing the input story
 
-## Temporal modes have distinct meanings
+| Question | Local entry point | Scope |
+|---|---|---|
+| What changes across a ready-time window? | [`rraptor`](../src/profile.py) | One service date, fixed walking, arrival/boarding objectives, transit-required endpoints |
+| When can I start and still meet a deadline? | [`arrive_by`](../src/reverse.py) | Native reverse scans over the supplied timetable |
+| What is the last feasible connection? | [`last_connection`](../src/reverse.py) | The supplied service day's event horizon; transit-required endpoints |
+| How do delays affect the input? | [`apply_snapshot`](../src/realtime.py) | Validated bundle/date identity, whole-trip nonnegative delays and cancellations |
+| Which objective vectors survive? | [`bounded_frontier`](../src/pareto.py) | A separate dominance exercise, not a multicriteria route scan |
 
-The target contract in [Backend #305](https://github.com/AquilaXk/easysubway-backend/issues/305) distinguishes point search from profile search. The point wire vocabulary remains NOW/SCHEDULED, with SCHEDULED interpreted canonically as DEPART_AT; that isn't permission to rename the existing public enum.
+An admitted point search with no feasible journey returns an empty result. Invalid input, unusable evidence, unsupported profile domains, and exceeded limits raise typed errors. Neither outcome retrieves a previously successful route.
 
-DEPART_BETWEEN describes a departure window. ARRIVE_BY maximizes feasible origin readiness subject to a completed-destination-arrival deadline. LAST_CONNECTION finds the latest feasible journey in the applicable service-day scope, not an arbitrary 23:59 query.
+## What is outside this implementation?
 
-Keep ready time, actual journey start, first boarding, platform arrival, and destination arrival separate. The lab's reverse search, for example, can return a latest ready time and an actual arrival earlier than the deadline. Those are not contradictory values.
+The lab does not load or merge multiple service dates, infer exact departures from headways, verify signed data, or integrate a full multicriteria state into the route scan. [Chapter 03](03_service_days_and_timetables.md), [Chapter 06](06_departure_profiles_and_reverse_search.md), and [Chapter 07](07_multicriteria_frontiers_and_extensions.md) explain the missing input and state requirements.
 
-## Source and assumption register
+There is no network API, live data provider, passenger UI, or deployment system. The Python examples and tests are the evidence for the behavior described here.
 
-Reviewed on **September 7, 2026**. Main-code observations are pinned; linked issues are evolving target documents. The relevant open issues across the five repositories were reviewed for curriculum scope. This is not a claim to audit every source file, historical closed issue, or deployed service.
+## Exercise and answer
 
-| Source | How this guide uses it |
-|---|---|
-| [Backend main ADR](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/tools/routes/route-algorithm-v2-adr.json) | Verified active/inactive algorithm declarations |
-| [Backend main planner](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java) | Verified scan and Journey projection concepts in inspected sections |
-| [Backend #25](https://github.com/AquilaXk/easysubway-backend/issues/25) | Coordinated algorithm-suite target |
-| [Backend #305](https://github.com/AquilaXk/easysubway-backend/issues/305), [#306](https://github.com/AquilaXk/easysubway-backend/issues/306) | Temporal contract and native execution boundary |
-| [Backend #307](https://github.com/AquilaXk/easysubway-backend/issues/307), [#308](https://github.com/AquilaXk/easysubway-backend/issues/308), [#309](https://github.com/AquilaXk/easysubway-backend/issues/309), [#310](https://github.com/AquilaXk/easysubway-backend/issues/310) | Frontier, forward range, reverse, and controls target |
-| [Backend #297](https://github.com/AquilaXk/easysubway-backend/issues/297), [#311](https://github.com/AquilaXk/easysubway-backend/issues/311) | Deployed measurement and conditional pruning |
-| [Mobile #316](https://github.com/AquilaXk/easysubway-mobile/issues/316), [#7](https://github.com/AquilaXk/easysubway-mobile/issues/7), [#29](https://github.com/AquilaXk/easysubway-mobile/issues/29), [#45](https://github.com/AquilaXk/easysubway-mobile/issues/45) | Temporal UI, explicit failures, access evidence, and separate static products |
-| [Data #454](https://github.com/AquilaXk/easysubway-data/issues/454), [#455](https://github.com/AquilaXk/easysubway-data/issues/455), [#452](https://github.com/AquilaXk/easysubway-data/issues/452), [#478](https://github.com/AquilaXk/easysubway-data/issues/478) | Source-native identity, realtime coverage, and operational accessibility evidence |
-| [Platform #148](https://github.com/AquilaXk/easysubway-platform/issues/148), [#117](https://github.com/AquilaXk/easysubway-platform/issues/117), [#17](https://github.com/AquilaXk/easysubway-platform/issues/17) | Capability-aware readiness, deployment, and activation boundaries |
-| [Hub #2742](https://github.com/AquilaXk/easysubway/issues/2742), [#1393](https://github.com/AquilaXk/easysubway/issues/1393) | Repository and artifact ownership |
+Move readiness from 08:00:00 to 08:00:01. ENTRY plus boarding slack now reaches 08:02:01, missing the first `R1`. The next `R1` reaches `X` at 08:15; transfer and slack permit `R2` at 08:18, and EXIT completes at 08:27. The 08:30 direct journey remains feasible.
 
-No source in this register is a permission to weaken validation, add a provider fallback, or treat candidate artifacts as actively serving artifacts.
+This one-second change links the round scan to the exact event boundaries studied in Chapter 06.

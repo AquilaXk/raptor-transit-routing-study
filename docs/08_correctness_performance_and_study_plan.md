@@ -25,7 +25,7 @@ also validate returned witnesses against raw input with `validate_against`, so a
 correct arrival value cannot conceal a nonexistent ride or walking edge. Hand-built
 negative witnesses test this checker independently of the route generator.
 
-These checks establish confidence in the restricted lab model. They do not prove complete Journey Profile V1 semantics, real-source completeness, or full multicriteria representative preservation.
+These checks establish confidence in the restricted lab model. They do not prove multi-date profile semantics, real-source completeness, or full multicriteria representative preservation.
 
 ## Measure the thing you actually ran
 
@@ -33,7 +33,7 @@ These checks establish confidence in the restricted lab model. They do not prove
 
 There are no synthetic `provider_calls=0`, `fallback_calls=0`, or “production p95” fields. The lab cannot observe those deployed behaviors. An unobservable quantity is not zero.
 
-[Backend #297](https://github.com/AquilaXk/easysubway-backend/issues/297) defines the relevant target: measurements from the deployed active-serving request path, bound to the request and artifact identities. Cold compilation and first-query costs must remain distinct from warm-query distributions. [Backend #310](https://github.com/AquilaXk/easysubway-backend/issues/310) adds temporal admission and resource controls.
+For a benchmark, distinguish input compilation and the first query from repeated queries on an existing index. Bind the reported counters to the exact fixture and query. [`Work`](../src/metrics.py) also exposes local work limits, deadlines, and cancellation; these are checks in the calculation, not measurements of a deployed service.
 
 If you benchmark this lab, report the Python version, hardware, fixture seed, number of stops/trips, query corpus, and exact command. A faster run on a seven-stop fixture does not predict a production service-level objective.
 
@@ -45,11 +45,11 @@ If you benchmark this lab, report the Python version, hardware, fixture seed, nu
 
 **Pass 3: follow time.** Read chapters 03 and 06 and execute notebook 02. Explain a `24:xx` occurrence, an exact-second profile breakpoint, retained rows across departures, and the difference between latest ready time and destination deadline.
 
-**Pass 4: follow authority.** Read chapters 04–05. Trace the five repository owners. Explain why map/catalog availability is not a route fallback, and why a fake hash-shaped fixture is not a signed artifact.
+**Pass 4: follow the input.** Read chapters 04–05. Trace the fixture through compilation, admission, scanning, and witness validation. Explain why a hash-shaped field is not a signature, and why chronology alone cannot prove a ride exists.
 
 **Pass 5: challenge the frontier.** Read chapter 07 and execute notebook 03. Produce a case where one scalar intermediate label loses a least-walking candidate. Explain which oracle and state representation would be needed before claiming full McRAPTOR.
 
-You're ready to discuss the EasySubway target when you can separate algorithm correctness, input admission, public contract, activation identity, and deployed evidence without using one as a proxy for the others.
+You understand the lab's boundaries when you can separate algorithm correctness, input admission, witness validity, and measured work without using one as a proxy for the others.
 
 ## Settings and contribution policy
 
@@ -58,15 +58,6 @@ Structure checks protect the required learning resources and local links while
 allowing new examples, tests and tooling. `.github/workflows/ci.yml` runs tests,
 examples and fresh-kernel notebook execution on Python 3.11.14 and 3.14.6.
 Check actual GitHub run results before describing a revision as passing CI.
-
-The external initial-delivery script targets `AquilaXk/raptor-transit-routing-study`.
-It defaults to private visibility, refuses an existing repository, verifies the
-authenticated owner and prepared-file checksums, runs the tests before pushing,
-and configures the documented settings. Main protection can require both Study CI
-jobs when the account plan supports it. Settings are read back after write attempts.
-The script is not an update tool for an already-published repository.
-
-The script doesn't request secrets in chat, alter global Git configuration, force-push, delete a repository, or publish production data. A failed remote operation must be reported as failed or partial; it is not permission to claim the repository exists and is configured.
 
 For contributions, make a small feature branch, add a failing fixture, implement
 the fix, run affected tests, execute `python tools/verify_notebooks.py` when notebook
@@ -81,7 +72,7 @@ to fabricate a successful route.
 | Choose the right query model | Chapter 00 application decision table | Point, profile and tradeoff examples |
 | Preserve round and scan invariants | Chapters 01–02 | `tests/test_raptor.py`, notebook 01 |
 | Resolve service-day semantics | Chapter 03 | `src/service_time.py`, notebook 02 |
-| Follow EasySubway ownership | Chapter 04 | Pinned Backend code and linked owner issues |
+| Follow the local calculation | Chapter 04 | `example_routing.py`, `src/raptor.py`, `tests/test_witness.py` |
 | Validate accessible path witnesses | Chapter 05 | `tests/test_witness.py`, `Journey.validate_against` |
 | Understand range and reverse scans | Chapter 06 | `tests/test_profiles.py`, `tests/test_oracle.py` |
 | Expose scalar frontier loss | Chapter 07 | `example_walking_tradeoff.py`, notebook 03 |
