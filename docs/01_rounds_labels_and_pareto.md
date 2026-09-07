@@ -1,5 +1,7 @@
 # 01 — Rounds, labels, and Pareto choices
 
+**English** | [한국어](01_rounds_labels_and_pareto.ko.md)
+
 [Previous](00_why_transit_needs_raptor.md) · [Guide](../README.md) · [Next](02_marked_route_scanning.md)
 
 ## Give every label a sentence

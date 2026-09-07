@@ -1,5 +1,7 @@
 # 06 — Departure profiles and reverse search
 
+**English** | [한국어](06_departure_profiles_and_reverse_search.ko.md)
+
 [Previous](05_transfers_accessibility_and_identity.md) · [Guide](../README.md) · [Next](07_multicriteria_frontiers_and_extensions.md)
 
 ## A range is not a pile of minute samples

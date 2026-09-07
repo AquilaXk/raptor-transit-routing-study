@@ -1,5 +1,7 @@
 # 00 — Why transit needs RAPTOR
 
+**English** | [한국어](00_why_transit_needs_raptor.ko.md)
+
 [Back to the guide](../README.md) · [Next: rounds and labels](01_rounds_labels_and_pareto.md)
 
 ## Start with the rider, not the acronym

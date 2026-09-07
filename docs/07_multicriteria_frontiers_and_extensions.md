@@ -1,5 +1,7 @@
 # 07 — Multicriteria frontiers and extensions
 
+**English** | [한국어](07_multicriteria_frontiers_and_extensions.ko.md)
+
 [Previous](06_departure_profiles_and_reverse_search.md) · [Guide](../README.md) · [Next](08_correctness_performance_and_study_plan.md)
 
 ## One earlier label can still be the wrong representative
