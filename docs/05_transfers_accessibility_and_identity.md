@@ -1,5 +1,7 @@
 # 05 — Transfers, accessibility, and identity
 
+**English** | [한국어](05_transfers_accessibility_and_identity.ko.md)
+
 [Previous](04_easysubway_end_to_end.md) · [Guide](../README.md) · [Next](06_departure_profiles_and_reverse_search.md)
 
 ## Feasible first, preferred second

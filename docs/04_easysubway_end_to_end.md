@@ -1,5 +1,7 @@
 # 04 — A journey through the local lab
 
+**English** | [한국어](04_easysubway_end_to_end.ko.md)
+
 [Previous](03_service_days_and_timetables.md) · [Guide](../README.md) · [Next](05_transfers_accessibility_and_identity.md)
 
 ## Start with an executable request

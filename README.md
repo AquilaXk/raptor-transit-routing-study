@@ -6,13 +6,15 @@
 
 **A self-contained, hands-on guide to round-based public transit routing.**
 
-Python 3.11+ · MIT · English · No algorithm runtime dependencies
+Python 3.11+ · MIT · English (default) / 한국어 · No algorithm runtime dependencies
 
 Let's build the mental model first, trace a tiny network by hand, and then run the code. After that, we'll connect the algorithm to the parts that make a real journey service trustworthy: service dates, walking, accessibility, realtime identity, bounded frontiers, and honest failure behavior.
 
 Here, **RAPTOR means the public transit routing algorithm**, not the similarly named retrieval technique for language models. This repository contains original explanations and a small executable implementation.
 
 > **Learning principle.** Every walkthrough can be followed using this repository's explanations, code, examples, and tests. Research and standards links provide optional background. Implemented behavior and possible extensions are distinguished explicitly. All runnable timetables, identifiers, and hash-shaped values are invented fixtures.
+
+Each chapter, notebook, and the PDF reading companion has a Korean edition. Use the language links in each chapter or notebook, or start from the [Korean guide](README.ko.md). English remains the default.
 
 ## Contents
 
@@ -205,7 +207,7 @@ A broader engine would need multi-date occurrence selection, affine walking-only
 
 ## 10. Read the paper with a purpose
 
-Open the [official paper page](https://www.microsoft.com/en-us/research/publication/round-based-public-transit-routing/) alongside the [original reading companion](papers/raptor_reading_companion.pdf) in this repository. The companion is our own guide, **not a redistributed copy of the research paper**.
+Open the [official paper page](https://www.microsoft.com/en-us/research/publication/round-based-public-transit-routing/) alongside the original reading companion ([English](papers/raptor_reading_companion.pdf) · [한국어](papers/raptor_reading_companion.ko.pdf)) in this repository. The companion is our own guide, **not a redistributed copy of the research paper**.
 
 On the first pass, focus on the state: what does a label mean, and what may a round read? On the second pass, trace the route scan on the fixture. On the third pass, compare the paper's transfer assumptions with our explicit walking closure. Then read the extensions with a specific question: what extra information must survive when departure time or another criterion becomes part of the problem?
 
@@ -215,9 +217,10 @@ We use original explanations and worked examples rather than decorative or unver
 
 ## 11. Repository structure and learning path
 
-The curriculum connects nine chapters, three notebooks, runnable examples and
-focused tests. Each component explains a RAPTOR invariant or an input-validation
-application boundary. New learning resources can be added without a file-count cap.
+The curriculum connects nine chapters and three notebooks, each in English and
+Korean, with runnable examples and focused tests. Each component explains a RAPTOR
+invariant or an input-validation boundary. New learning resources can be added
+without a file-count cap.
 
 ```text
 raptor-study/
@@ -234,9 +237,9 @@ raptor-study/
 ├── requirements.txt
 ├── requirements-ci.txt
 ├── assets/       # 5 diagrams: 3 JPG, 2 PNG
-├── docs/         # 9 numbered chapters, 00–08
-├── notebooks/    # 3 executable notebooks, 01–03
-├── papers/       # 1 original reading companion PDF
+├── docs/         # 9 chapters, 00–08; .md English, .ko.md Korean
+├── notebooks/    # 3 labs; .ipynb English, .ko.ipynb Korean
+├── papers/       # Original reading companion: English and Korean PDFs
 ├── src/          # 17 Python modules
 └── tests/        # invariants, raw-input witnesses, tradeoffs and oracle parity
 ```
@@ -306,8 +309,9 @@ A failed admission, exhausted budget, cancellation, or stale overlay raises a ty
 Keep explanations self-contained: introduce the concept here, link to local implementation or evidence, and state unsupported behavior directly. An extension should begin with a small fixture and a precise invariant readers can verify within this repository.
 
 The [CI workflow](.github/workflows/ci.yml) runs the full test suite, all three
-examples and fresh notebook kernels on Python 3.11.14 and 3.14.6. It uses read-only
-repository permissions and commit-pinned actions. Notebook outputs are cleared
+examples and fresh kernels for all six language-edition notebooks on Python
+3.11.14 and 3.14.6. It uses read-only repository permissions and commit-pinned
+actions. Notebook outputs are cleared
 in memory before execution; stored output is never treated as fresh evidence.
 For verification without the JupyterLab UI, install `requirements-ci.txt`.
 

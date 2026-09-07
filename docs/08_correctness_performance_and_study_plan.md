@@ -1,5 +1,7 @@
 # 08 — Correctness, performance, and a study plan
 
+**English** | [한국어](08_correctness_performance_and_study_plan.ko.md)
+
 [Previous](07_multicriteria_frontiers_and_extensions.md) · [Back to the guide](../README.md)
 
 ## Build a failure before building an optimization

@@ -6,7 +6,7 @@
 
 **이 저장소 안에서 설명과 실습을 완결하는 라운드 기반 대중교통 경로 탐색 가이드입니다.**
 
-Python 3.11+ · MIT · 한국어 · 알고리즘 실행 시 외부 의존성 없음
+Python 3.11+ · MIT · 영어 기본 / 한국어 · 알고리즘 실행 시 외부 의존성 없음
 
 먼저 개념을 이해하고, 작은 네트워크를 손으로 따라간 다음 코드를 실행합니다. 이후 운행일, 도보, 접근성, 실시간 데이터의 식별 정보, 용량 제한이 있는 후보 집합, 실패를 숨기지 않는 동작을 알고리즘과 연결합니다.
 
@@ -14,7 +14,7 @@ Python 3.11+ · MIT · 한국어 · 알고리즘 실행 시 외부 의존성 없
 
 > **학습 원칙.** 모든 설명은 이 저장소의 본문·코드·예제·테스트만으로 따라갈 수 있어야 합니다. 논문과 표준 링크는 선택적인 배경 자료입니다. 구현된 동작과 확장 아이디어를 명확히 구분합니다. 시간표, 식별자, 해시 형태의 값은 모두 가상의 테스트 데이터입니다.
 
-영어 [README.md](README.md)가 기본 문서입니다. 이 문서는 한국어 번역이며, 연결된 상세 장·노트북·이미지 내부 설명은 영어로 제공됩니다.
+영어 [README.md](README.md)가 기본 문서입니다. 각 장, 실습 노트북, PDF 읽기 가이드에 한국어판이 있습니다. 이 안내의 학습 링크는 한국어판으로 연결되며, 각 장과 노트북에서 언어를 전환할 수 있습니다. 공통 도해의 이미지 내부 표기는 영어로 유지하고, 의미는 한국어 본문에서 설명합니다.
 
 ## 목차
 
@@ -45,7 +45,7 @@ RAPTOR는 **차량에 몇 번 탑승했는지**를 기준으로 탐색을 구성
 
 중요한 질문은 “빠른 열차를 찾을 수 있는가?”보다 넓습니다. “계산이 설명 가능하고 접근성을 충족하며 식별 정보가 일관된 여정을 반환하거나, 여정을 지어내지 않고 실패할 수 있는가?”입니다.
 
-[적용 모델 결정표](docs/00_why_transit_needs_raptor.md#decide-which-raptor-model-the-request-needs)에서 단일 시점·구간·역방향·다기준 탐색의 요구사항, 입력 가정, 실습에서 제공하는 검증 근거를 먼저 구분하세요.
+[적용 모델 결정표](docs/00_why_transit_needs_raptor.ko.md#decide-which-raptor-model-the-request-needs)에서 단일 시점·구간·역방향·다기준 탐색의 요구사항, 입력 가정, 실습에서 제공하는 검증 근거를 먼저 구분하세요.
 
 ## 2. 수식보다 먼저 이해할 직관
 
@@ -87,7 +87,7 @@ $$\tau_{k-1}(s_i) + b \leq d(t,i),$$
 
 $$\tau_k(s_j) \leftarrow \min\left(\tau_k(s_j),a(t,j)\right).$$
 
-그다음 탑승 횟수를 늘리지 않고 허용된 도보 경로를 끝까지 전파합니다. 자세한 내용은 [라운드·라벨·파레토](docs/01_rounds_labels_and_pareto.md)를 참고하세요.
+그다음 탑승 횟수를 늘리지 않고 허용된 도보 경로를 끝까지 전파합니다. 자세한 내용은 [라운드·라벨·파레토](docs/01_rounds_labels_and_pareto.ko.md)를 참고하세요.
 
 첨자에 주의하세요. **탑승 라벨은 현재 쓰고 있는 라운드가 아니라 $k-1$ 라운드에서 읽어야 합니다.** 그렇지 않으면 같은 반복문에서 나중에 스캔한 노선이 두 번째 탑승을 같은 라운드에 끼워 넣을 수 있습니다.
 
@@ -128,7 +128,7 @@ assert seconds == 86760
 assert service_instant(date(2026, 9, 7), seconds).isoformat() == "2026-09-08T00:06:00+09:00"
 ```
 
-운행 달력 예외, 운행일 경계를 넘는 조회 구간, 전날 시작한 운행편, 배차 간격의 의미, 실시간 정보 적용 가능성은 질의가 사용할 수 있는 열차를 결정합니다. 화면 표시 형식으로 고칠 수 있는 문제가 아닙니다. 실습은 주어진 운행일 하나를 다루며, 여러 운행일로 확장할 때 필요한 작업은 [운행일과 시간표](docs/03_service_days_and_timetables.md)에서 설명합니다.
+운행 달력 예외, 운행일 경계를 넘는 조회 구간, 전날 시작한 운행편, 배차 간격의 의미, 실시간 정보 적용 가능성은 질의가 사용할 수 있는 열차를 결정합니다. 화면 표시 형식으로 고칠 수 있는 문제가 아닙니다. 실습은 주어진 운행일 하나를 다루며, 여러 운행일로 확장할 때 필요한 작업은 [운행일과 시간표](docs/03_service_days_and_timetables.ko.md)에서 설명합니다.
 
 ## 6. 도보와 접근성도 여정의 일부다
 
@@ -140,7 +140,7 @@ assert service_instant(date(2026, 9, 7), seconds).isoformat() == "2026-09-08T00:
 
 정류장·라운드마다 라벨 하나만 두어도 되는 이유는 요청 내 도보 시간과 탑승 여유 시간이 고정되고, 대기가 허용되며, 탐색 목표가 도착 시각과 탑승 횟수이기 때문입니다. 진입 노선별 환승 규칙이나 경로에 따라 달라지는 접근성은 더 풍부한 상태를 요구할 수 있습니다. 역 단위 상수에 숨기지 마세요.
 
-실제 데이터에 적용하기 전에 [환승·접근성·식별 정보](docs/05_transfers_accessibility_and_identity.md)를 읽어보세요.
+실제 데이터에 적용하기 전에 [환승·접근성·식별 정보](docs/05_transfers_accessibility_and_identity.ko.md)를 읽어보세요.
 
 ## 7. 이 저장소에서 여정 계산 따라가기
 
@@ -154,7 +154,7 @@ assert service_instant(date(2026, 9, 7), seconds).isoformat() == "2026-09-08T00:
 | 계산 | [raptor.py](src/raptor.py), [route_scan.py](src/route_scan.py), [footpaths.py](src/footpaths.py) | 탑승 라운드 하나를 스캔하고 허용된 도보 경로 전파 |
 | 설명과 검증 | [round_state.py](src/round_state.py), [journey.py](src/journey.py) | 대안 여정을 추출하고 경로가 실제 입력에 존재하는지 검증 |
 
-[전체 흐름을 다루는 장](docs/04_easysubway_end_to_end.md)은 08:00 질의를 이 함수들로 추적하며 빈 결과와 계산 실패의 차이도 설명합니다.
+[전체 흐름을 다루는 장](docs/04_easysubway_end_to_end.ko.md)은 08:00 질의를 이 함수들로 추적하며 빈 결과와 계산 실패의 차이도 설명합니다.
 
 ## 8. 가장 빠른 라벨만으로는 후보 집합이 완성되지 않는 이유
 
@@ -196,11 +196,11 @@ assert service_instant(date(2026, 9, 7), seconds).isoformat() == "2026-09-08T00:
 
 실행 가능한 프로파일은 하나의 수용된 운행일, 고정된 도보 조건, 도착 시각·탑승 횟수 목표, 대중교통 이용이 필요한 출발지·목적지 쌍으로 제한됩니다. 도보 전용 프로파일에는 상수 구간만이 아니라 출발 시각에 비례해 도착 시각이 변하는 아핀 구간도 필요하므로, 실습은 지원하지 않는 이 영역을 명시적으로 거부합니다. arrive-by와 단일 시점 질의는 도보 전용 여정도 지원합니다.
 
-더 넓은 엔진에는 여러 운행일의 운행편 선택, 도보 전용 프로파일의 일차함수 구간, 중간 정류장의 다기준 상태가 필요합니다. [06장](docs/06_departure_profiles_and_reverse_search.md)은 현재 표현으로 이 동작을 제공할 수 없는 이유를 설명합니다.
+더 넓은 엔진에는 여러 운행일의 운행편 선택, 도보 전용 프로파일의 일차함수 구간, 중간 정류장의 다기준 상태가 필요합니다. [06장](docs/06_departure_profiles_and_reverse_search.ko.md)은 현재 표현으로 이 동작을 제공할 수 없는 이유를 설명합니다.
 
 ## 10. 목적을 정하고 논문 읽기
 
-[공식 논문 페이지](https://www.microsoft.com/en-us/research/publication/round-based-public-transit-routing/)와 저장소의 [직접 작성한 읽기 가이드](papers/raptor_reading_companion.pdf)를 함께 열어보세요. 가이드는 자체 설명 자료이며 **연구 논문을 재배포한 사본이 아닙니다.**
+[공식 논문 페이지](https://www.microsoft.com/en-us/research/publication/round-based-public-transit-routing/)와 저장소의 [직접 작성한 읽기 가이드](papers/raptor_reading_companion.ko.pdf)를 함께 열어보세요. 가이드는 자체 설명 자료이며 **연구 논문을 재배포한 사본이 아닙니다.**
 
 첫 번째 읽기에서는 상태에 집중하세요. 라벨이 무엇을 뜻하고 라운드는 무엇을 읽을 수 있나요? 두 번째에는 테스트 데이터로 노선 스캔을 따라가세요. 세 번째에는 논문의 환승 가정과 실습의 명시적인 도보 전파를 비교하세요. 이후 출발 시각이나 다른 기준을 문제에 추가할 때 어떤 정보를 더 유지해야 하는지 질문하며 확장을 읽어보세요.
 
@@ -210,7 +210,7 @@ assert service_instant(date(2026, 9, 7), seconds).isoformat() == "2026-09-08T00:
 
 ## 11. 저장소 구조와 학습 순서
 
-9개 장, 3개 노트북, 실행 가능한 예제, 범위를 좁힌 테스트를 연결한 학습 과정입니다. 각 구성 요소는 RAPTOR의 불변 조건이나 입력 검증 경계를 설명합니다. 파일 개수 제한 없이 새 학습 자료를 추가할 수 있습니다.
+각각 영어·한국어판을 갖춘 9개 장과 3개 노트북, 실행 가능한 예제, 범위를 좁힌 테스트를 연결한 학습 과정입니다. 각 구성 요소는 RAPTOR의 불변 조건이나 입력 검증 경계를 설명합니다. 파일 개수 제한 없이 새 학습 자료를 추가할 수 있습니다.
 
 ```text
 raptor-study/
@@ -227,26 +227,26 @@ raptor-study/
 ├── requirements.txt
 ├── requirements-ci.txt
 ├── assets/       # 도해 5개: JPG 3개, PNG 2개
-├── docs/         # 00–08, 총 9개 장
-├── notebooks/    # 01–03, 실행 가능한 노트북 3개
-├── papers/       # 직접 작성한 읽기 가이드 PDF 1개
+├── docs/         # 00–08, 9개 장: .md 영어, .ko.md 한국어
+├── notebooks/    # 실습 3개: .ipynb 영어, .ko.ipynb 한국어
+├── papers/       # 직접 작성한 읽기 가이드: 영어·한국어 PDF
 ├── src/          # Python 모듈 17개
 └── tests/        # 불변 조건, 원시 입력 경로 증거, 절충 관계, 오라클 일치 검증
 ```
 
-[학습 자료 지도](docs/08_correctness_performance_and_study_plan.md#learning-resource-map)는 개념을 실행 가능한 근거와 연결합니다. `test_structure.py`는 추가 파일을 허용하면서 필수 자료와 학습 자료 링크를 보호합니다. 노트북 실행은 별도의 CI 검사입니다.
+[학습 자료 지도](docs/08_correctness_performance_and_study_plan.ko.md#learning-resource-map)는 개념을 실행 가능한 근거와 연결합니다. `test_structure.py`는 추가 파일을 허용하면서 필수 자료와 학습 자료 링크를 보호합니다. 노트북 실행은 별도의 CI 검사입니다.
 
 | 단계 | 읽을 자료 | 실행하거나 살펴볼 항목 |
 |---|---|---|
-| 직관 만들기 | [00 — 대중교통에 RAPTOR가 필요한 이유](docs/00_why_transit_needs_raptor.md) | `example_routing.py` |
-| 불변 조건 추적 | [01 — 라운드와 라벨](docs/01_rounds_labels_and_pareto.md) | 노트북 01 |
-| 스캔 이해 | [02 — 표시된 노선 스캔](docs/02_marked_route_scanning.md) | `route_scan.py` |
-| 실제 시간 의미 검증 | [03 — 운행일](docs/03_service_days_and_timetables.md) | 노트북 02 |
-| 서비스 연결 | [04 — 여정 계산 전체 흐름](docs/04_easysubway_end_to_end.md) | 로컬 함수·검증 근거 대응표 |
-| 여정의 신뢰성 유지 | [05 — 접근성과 식별 정보](docs/05_transfers_accessibility_and_identity.md) | 실패 테스트 |
-| 단일 시점 질의 확장 | [06 — 프로파일과 역방향 탐색](docs/06_departure_profiles_and_reverse_search.md) | `example_journey_profiles.py` |
-| 유용한 대안 보존 | [07 — 후보 집합과 확장](docs/07_multicriteria_frontiers_and_extensions.md) | 노트북 03 |
-| 최적화 전에 증명 | [08 — 정확성과 학습 계획](docs/08_correctness_performance_and_study_plan.md) | 전체 테스트 모음 |
+| 직관 만들기 | [00 — 대중교통에 RAPTOR가 필요한 이유](docs/00_why_transit_needs_raptor.ko.md) | `example_routing.py` |
+| 불변 조건 추적 | [01 — 라운드와 라벨](docs/01_rounds_labels_and_pareto.ko.md) | 노트북 01 |
+| 스캔 이해 | [02 — 표시된 노선 스캔](docs/02_marked_route_scanning.ko.md) | `route_scan.py` |
+| 실제 시간 의미 검증 | [03 — 운행일](docs/03_service_days_and_timetables.ko.md) | 노트북 02 |
+| 서비스 연결 | [04 — 여정 계산 전체 흐름](docs/04_easysubway_end_to_end.ko.md) | 로컬 함수·검증 근거 대응표 |
+| 여정의 신뢰성 유지 | [05 — 접근성과 식별 정보](docs/05_transfers_accessibility_and_identity.ko.md) | 실패 테스트 |
+| 단일 시점 질의 확장 | [06 — 프로파일과 역방향 탐색](docs/06_departure_profiles_and_reverse_search.ko.md) | `example_journey_profiles.py` |
+| 유용한 대안 보존 | [07 — 후보 집합과 확장](docs/07_multicriteria_frontiers_and_extensions.ko.md) | 노트북 03 |
+| 최적화 전에 증명 | [08 — 정확성과 학습 계획](docs/08_correctness_performance_and_study_plan.ko.md) | 전체 테스트 모음 |
 
 **실습에서 구현한 것:** 표시된 노선을 사용하는 단일 시점 RAPTOR, 방향성 도보 전파, 기본적인 필수 접근성 입력 검증, 운행 시각 도우미, 제한된 라벨 재사용 rRAPTOR, 자체 역방향 arrive-by, 제한된 마지막 연결편 탐색, 독립적인 용량 제한 목적 후보 집합, 식별 정보에 결합된 단순화된 실시간 오버레이, 작업량·기한·취소에 따른 실패, 독립적인 소규모 네트워크 오라클.
 
@@ -291,7 +291,7 @@ Windows PowerShell에서는 `.venv\Scripts\Activate.ps1`로 가상 환경을 활
 
 설명은 이 저장소 안에서 완결합니다. 개념을 본문에서 소개하고 로컬 구현이나 검증 근거로 연결하며 지원하지 않는 동작을 직접 명시합니다. 확장은 독자가 이 저장소에서 확인할 수 있는 작은 테스트 데이터와 정확한 불변 조건으로 시작합니다.
 
-[CI 워크플로](.github/workflows/ci.yml)는 Python 3.11.14와 3.14.6에서 전체 테스트, 예제 3개, 새 커널의 노트북 실행을 수행합니다. 저장소 읽기 전용 권한과 커밋에 고정된 액션을 사용합니다. 실행 전 메모리에서 노트북 출력을 지우므로 저장된 출력을 새로운 검증 근거로 취급하지 않습니다. JupyterLab UI 없이 검증하려면 `requirements-ci.txt`를 설치하세요.
+[CI 워크플로](.github/workflows/ci.yml)는 Python 3.11.14와 3.14.6에서 전체 테스트, 예제 3개, 두 언어판 노트북 6개의 새 커널 실행을 수행합니다. 저장소 읽기 전용 권한과 커밋에 고정된 액션을 사용합니다. 실행 전 메모리에서 노트북 출력을 지우므로 저장된 출력을 새로운 검증 근거로 취급하지 않습니다. JupyterLab UI 없이 검증하려면 `requirements-ci.txt`를 설치하세요.
 
 기여할 때는 먼저 작은 테스트 데이터로 문제를 재현하세요. 실패하는 불변 조건 또는 오라클 테스트를 추가하고, 최소한의 구현 변경을 한 뒤 가정을 설명하세요. 엄격한 접근성을 약화하거나, 후보 집합을 몰래 자르거나, 출처 데이터를 지어내거나, 성공으로 처리하는 대체 경로를 추가해 테스트를 “고치지” 마세요.
 
@@ -303,7 +303,7 @@ Windows PowerShell에서는 `.venv\Scripts\Activate.ps1`로 가상 환경을 활
 
 **시간표 의미.** [GTFS Schedule 참조](https://gtfs.org/documentation/schedule/reference/)의 운행 시각, 정류장 시각, 운행 달력, 배차 간격, 환승 항목을 참고합니다. 실습 스키마는 의도적으로 더 작으며 GTFS 준수 스키마라고 설명하지 않습니다.
 
-**구현 근거.** [04장](docs/04_easysubway_end_to_end.md)은 설명을 이 저장소의 함수와 테스트에 연결합니다. 외부 논문과 표준은 출처 표시와 선택적 심화 학습을 위한 자료이며, 다른 프로젝트의 코드나 이슈를 읽을 필요는 없습니다.
+**구현 근거.** [04장](docs/04_easysubway_end_to_end.ko.md)은 설명을 이 저장소의 함수와 테스트에 연결합니다. 외부 논문과 표준은 출처 표시와 선택적 심화 학습을 위한 자료이며, 다른 프로젝트의 코드나 이슈를 읽을 필요는 없습니다.
 
 ```bibtex
 @inproceedings{delling2012round,

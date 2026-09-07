@@ -1,5 +1,7 @@
 # 03 — Service days and timetables
 
+**English** | [한국어](03_service_days_and_timetables.ko.md)
+
 [Previous](02_marked_route_scanning.md) · [Guide](../README.md) · [Next](04_easysubway_end_to_end.md)
 
 ## A time needs an identity

@@ -1,5 +1,7 @@
 # 02 — Marked-route scanning
 
+**English** | [한국어](02_marked_route_scanning.ko.md)
+
 [Previous](01_rounds_labels_and_pareto.md) · [Guide](../README.md) · [Next](03_service_days_and_timetables.md)
 
 ## Find the work that actually changed

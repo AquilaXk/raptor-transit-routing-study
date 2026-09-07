@@ -99,3 +99,27 @@ def test_original_pdf_and_image_slots_exist():
     assert (ROOT / "papers/raptor_reading_companion.pdf").read_bytes().startswith(b"%PDF")
     assert list((ROOT / "assets").glob("*.jpg"))
     assert list((ROOT / "assets").glob("*.png"))
+
+def test_korean_learning_editions_preserve_examples_and_equations():
+    for english in sorted((ROOT / "docs").glob("*.md")):
+        if english.name.endswith(".ko.md"):
+            continue
+        korean = english.with_suffix(".ko.md")
+        original, translated = english.read_text(), korean.read_text()
+        assert f"**English** | [한국어]({korean.name})" in original
+        assert f"[English]({english.name}) | **한국어**" in translated
+        for pattern in (r"```[^\n]*\n.*?```", r"\$\$.*?\$\$"):
+            assert re.findall(pattern, original, re.S) == re.findall(pattern, translated, re.S), english
+    assert (ROOT / "papers/raptor_reading_companion.ko.pdf").read_bytes().startswith(b"%PDF")
+
+def test_notebook_language_editions_share_executable_cells():
+    for english in sorted((ROOT / "notebooks").glob("*.ipynb")):
+        if english.name.endswith(".ko.ipynb"):
+            continue
+        korean = english.with_suffix(".ko.ipynb")
+        original = json.loads(english.read_text())
+        translated = json.loads(korean.read_text())
+        assert [c for c in original["cells"] if c["cell_type"] == "code"] == [
+            c for c in translated["cells"] if c["cell_type"] == "code"], english
+        assert f"**English** | [한국어]({korean.name})" in "".join(original["cells"][0]["source"])
+        assert f"[English]({english.name}) | **한국어**" in "".join(translated["cells"][0]["source"])
