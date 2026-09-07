@@ -1,5 +1,7 @@
 # RAPTOR Study
 
+**English** | [한국어](README.ko.md)
+
 ![RAPTOR Study: from timetable events to trustworthy journeys](assets/banner.jpg)
 
 **A hands-on guide to round-based public transit routing, with EasySubway as the engineering context.**
@@ -228,6 +230,7 @@ raptor-study/
 ├── .gitignore
 ├── LICENSE
 ├── README.md
+├── README.ko.md
 ├── example_journey_profiles.py
 ├── example_routing.py
 ├── example_walking_tradeoff.py
