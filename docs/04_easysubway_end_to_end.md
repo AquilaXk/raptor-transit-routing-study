@@ -8,13 +8,13 @@ This chapter follows the requested assumption: the relevant EasySubway issues ha
 
 It does not let us claim those issues are currently closed, that a feature is active on main, or that deployment evidence exists. We keep a separate record of the source code actually inspected.
 
-## What main gives us today
+## What the reviewed Backend implementation shows
 
-The inspected Backend main commit is `1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa`.
+This walkthrough uses the [Backend implementation reviewed on September 7, 2026](https://github.com/AquilaXk/easysubway-backend/tree/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa). The source links open that exact version, so you can follow the explanation even after the project changes.
 
-The pinned [algorithm ADR](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/tools/routes/route-algorithm-v2-adr.json) declares `MARKED_SINGLE_DEPARTURE_RAPTOR` active for NOW and DEPART_AT. It declares profile modes inactive until PR #312 is terminal. Even the ADR's `active-production` status string is a code declaration, not a measurement from a deployed instance.
+The [algorithm decision record](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/tools/routes/route-algorithm-v2-adr.json) declares `MARKED_SINGLE_DEPARTURE_RAPTOR` active for NOW and DEPART_AT. It declares profile modes inactive until PR #312 is terminal. Even the record's `active-production` status string is a code declaration, not a measurement from a deployed instance.
 
-In the pinned [planner](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java), the inspected sections include a thread-local scan workspace, marked-stop/pattern collection, one-round-at-a-time scanning, and Journey access/ride/exit projection. The command type in these paths is still `SearchRouteV2Command`.
+In the reviewed [route planner](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java), the inspected sections include a thread-local scan workspace, marked-stop/pattern collection, one-round-at-a-time scanning, and Journey access/ride/exit projection. The command type in these paths is still `SearchRouteV2Command`.
 
 The same inspected code contains a fixed `PARETO_LIMIT`. We do not copy that number into a “finished target” policy. [Backend #306](https://github.com/AquilaXk/easysubway-backend/issues/306) and [#307](https://github.com/AquilaXk/easysubway-backend/issues/307) explicitly require separation between Journey-native input, internal state bounds, and the public recommendation cap.
 

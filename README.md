@@ -10,7 +10,7 @@ Let's build the mental model first, trace a tiny network by hand, and then run t
 
 Here, **RAPTOR means the public transit routing algorithm**, not the similarly named retrieval technique for language models. This is an original learning repository, not a fork of the EasySubway production runtime.
 
-> **Two baselines, kept separate.** The main-code observations below are pinned to EasySubway Backend `1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa`. The architecture discussion assumes the relevant EasySubway issues have been implemented, as a learning target. That assumption is not evidence that those features are deployed or active today. All runnable timetables, identifiers, and hash-shaped values in this repository are invented fixtures.
+> **How to read the EasySubway examples.** Code walkthroughs use the [Backend implementation reviewed on September 7, 2026](https://github.com/AquilaXk/easysubway-backend/tree/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa). Later chapters also explain the planned architecture as a learning target; they do not claim that every feature is already deployed. All runnable timetables, identifiers, and hash-shaped values in this repository are invented fixtures.
 
 ## Contents
 
@@ -154,9 +154,9 @@ The learning target follows the five-repository ownership model documented in [H
 | Platform | Source-free deployment, immutable activation, and capability-aware readiness |
 | Hub | Cross-repository coordination and final evidence/identity decisions |
 
-Here's the verified main-code anchor. At the pinned Backend commit, [`route-algorithm-v2-adr.json`](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/tools/routes/route-algorithm-v2-adr.json) names `EASYSUBWAY_RAPTOR_SUITE_V2`, marks the single-departure algorithm active, and marks profile modes inactive pending PR #312. That is a repository declaration, not a live deployment measurement.
+In the reviewed implementation, the [algorithm decision record](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/tools/routes/route-algorithm-v2-adr.json) marks single-departure RAPTOR active and profile modes inactive pending PR #312. This describes the code's declared capabilities, not a live deployment measurement.
 
-The pinned [`RouteTimetableRaptorPlanner.java`](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java) contains marked-stop collection, earliest marked pattern positions, scan workspaces, explicit access transitions, and final EXIT projection. It still receives `SearchRouteV2Command` in the inspected paths. The target in [Backend #306](https://github.com/AquilaXk/easysubway-backend/issues/306) removes that compatibility boundary from Journey-native execution.
+The [Backend route planner](https://github.com/AquilaXk/easysubway-backend/blob/1d80b7afc58bf788dd76846ea7dc86fcb8f1cfaa/backend/src/main/java/com/easysubway/route/application/service/RouteTimetableRaptorPlanner.java) contains marked-stop collection, earliest marked pattern positions, scan workspaces, explicit access transitions, and final EXIT projection. It still receives `SearchRouteV2Command` in the inspected paths. The target in [Backend #306](https://github.com/AquilaXk/easysubway-backend/issues/306) removes that compatibility boundary from Journey-native execution.
 
 So don't treat today's adapter shape or fixed label constants as the finished architecture. The detailed [end-to-end chapter](docs/04_easysubway_end_to_end.md) maps main-code observations to completed-issue responsibilities without claiming they're the same thing.
 
