@@ -14,13 +14,14 @@ Unreached stops are absent from a row. There is no magic timestamp standing for 
 
 Start with the origin's ready time. Close all allowed walking paths to form round zero. For round `k`, carry round `k-1`, collect routes affected by its improvements, and scan those routes using only round `k-1` for boarding readiness. Write arrival improvements into round `k`. Finally, close walking paths again without increasing the boarding count.
 
-For a boardable trip `t` at position `i`, the condition is:
+Let $d(t,i)$ and $a(t,i)$ denote trip $t$'s departure and arrival times at
+position $i$. For a boardable trip at that position, the condition is:
 
-$$\tau_{k-1}(s_i) + b \le \operatorname{dep}(t,i).$$
+$$\tau_{k-1}(s_i) + b \le d(t,i).$$
 
 The alighting update at a later permitted position `j` is:
 
-$$\tau_k(s_j) = \min(\tau_k(s_j), \operatorname{arr}(t,j)).$$
+$$\tau_k(s_j) = \min(\tau_k(s_j), a(t,j)).$$
 
 This describes the lab's recurrence. It assumes fixed request-specific walking durations and boarding slack, allowed waiting, admitted trips, and a state that captures the transfer distinctions that matter. It is not a proof that one scalar label handles every mobility or fare rule.
 
