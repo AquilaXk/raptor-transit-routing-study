@@ -1,0 +1,5 @@
+# Tests and notebook execution; versions shared with the full learning environment.
+pytest==9.0.2
+ipykernel==7.2.0
+nbformat==5.10.4
+nbclient==0.10.4

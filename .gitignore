@@ -1,0 +1,27 @@
+# Python and notebook state
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+.coverage
+htmlcov/
+# Local configuration and private data
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.sqlite
+*.sqlite3
+*.db
+*.log
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+# Packaging
+build/
+dist/
+*.egg-info/

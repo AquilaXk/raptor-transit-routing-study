@@ -1,0 +1,4 @@
+# The algorithm and examples use only Python's standard library.
+# These exact versions were exercised in the authoring environment (Python 3.13.5).
+-r requirements-ci.txt
+jupyterlab==4.5.3
