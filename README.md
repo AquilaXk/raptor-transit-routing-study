@@ -77,13 +77,14 @@ Initialize round zero with the origin's ready time and all allowed walking reach
 
 $$\tau_k(s) \leftarrow \tau_{k-1}(s).$$
 
-At position $i$ of a trip, boarding is possible only when
+Write $d(t,i)$ for trip $t$'s departure time at position $i$, and $a(t,i)$ for
+its arrival time there. Boarding is possible only when
 
-$$\tau_{k-1}(s_i) + b \leq \operatorname{dep}(t,i),$$
+$$\tau_{k-1}(s_i) + b \leq d(t,i),$$
 
 where $b$ is the boarding slack. For a permitted downstream alighting position $j$:
 
-$$\tau_k(s_j) \leftarrow \min\left(\tau_k(s_j),\operatorname{arr}(t,j)\right).$$
+$$\tau_k(s_j) \leftarrow \min\left(\tau_k(s_j),a(t,j)\right).$$
 
 Then close allowed walking paths without adding a boarding. The details live in [rounds, labels, and Pareto](docs/01_rounds_labels_and_pareto.md).
 
