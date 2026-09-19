@@ -58,7 +58,7 @@ You understand the lab's boundaries when you can separate algorithm correctness,
 The directory layout is a curriculum baseline, not a maximum file count.
 Structure checks protect the required learning resources and local links while
 allowing new examples, tests and tooling. `.github/workflows/ci.yml` runs tests,
-examples and fresh-kernel notebook execution on Python 3.11.14 and 3.14.6.
+examples and fresh-kernel notebook execution on Python 3.11, 3.12, and 3.13.
 Check actual GitHub run results before describing a revision as passing CI.
 
 For contributions, make a small feature branch, add a failing fixture, implement

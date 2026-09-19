@@ -85,3 +85,8 @@ def test_delay_can_invalidate_single_trip_scan_assumptions():
 def test_duplicate_update_is_rejected():
     with pytest.raises(RoutingError, match="duplicate"):
         snapshot(delays=(("R1-0802", 1), ("R1-0802", 2)))
+
+@pytest.mark.parametrize("bad_id", ["", "   ", None, 123])
+def test_snapshot_invalid_identity_rejected(bad_id):
+    with pytest.raises(RoutingError, match="INVALID_INPUT"):
+        snapshot(identity=bad_id)

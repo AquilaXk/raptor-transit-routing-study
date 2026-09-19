@@ -25,6 +25,12 @@ class ProfileSegment:
         return tuple((j.arrival, j.boardings) for j in self.result.journeys())
 
     def journeys_at(self, ready: int) -> tuple[Journey, ...]:
+        """Return journeys for ready time using the segment representative's witness.
+
+        Earlier seconds within this segment keep the later witness, representing
+        waiting at the origin before the entry walk. Callers may tighten initial
+        walks with tighten_walks() to shift waiting to the platform instead.
+        """
         if not self.ready_from <= ready <= self.ready_through:
             raise RoutingError("OUTSIDE_WINDOW", "ready time is outside this segment")
         return tuple(Journey(j.origin, j.destination, ready, j.arrival, j.boardings, j.legs)

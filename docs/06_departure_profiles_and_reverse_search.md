@@ -34,6 +34,8 @@ The code copies dictionaries and immutable path tuples for clarity. It reports r
 
 Our profile's observable signature is the nondominated set of arrival-time/boarding-count pairs. Adjacent intervals with the same signature can merge. We retain a later feasible witness so an earlier-ready rider can wait for it.
 
+Because an interval keeps the representative witness from its later boundary, queries at earlier seconds within the same interval retain that journey's legs, representing waiting at the origin before the entry walk. In a passenger-facing application, calling `tighten_walks` can adjust the entry walk to depart immediately at the ready time, shifting the wait to the departure platform.
+
 That is narrower than retaining every distinct physical journey, accessibility preference, safety representative, or walking tradeoff. A multicriteria extension must define interval equivalence using every objective it promises to preserve. A pair of intervals that look equal to the scalar lab might differ under a least-walking or safest-connection objective.
 
 Walking-only arrivals are another trap. If you can walk directly from origin to destination in 300 seconds, arrival is `ready + 300`, not a constant step function. This lab rejects walking-only O/D profiles with `UNSUPPORTED_LAB_PROFILE` rather than claiming constant segments are exact. A full profile engine can represent the necessary affine pieces.
