@@ -59,6 +59,7 @@ REQUIRED_FILES = {
     'tests/test_structure.py',
     'tests/test_walking_tradeoff.py',
     'tests/test_witness.py',
+    'tools/run_tests.py',
     'tools/verify_notebooks.py',
 }
 IGNORED = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".ipynb_checkpoints"}

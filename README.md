@@ -267,12 +267,13 @@ Notebook execution is a separate CI check.
 
 ## 12. Run the examples and tests
 
-The examples need only Python's standard library. Start from the repository root:
+The examples and the standalone test runner need only Python's standard library. Start from the repository root:
 
 ```bash
 python3 example_routing.py
 python3 example_journey_profiles.py
 python3 example_walking_tradeoff.py
+python3 tools/run_tests.py
 ```
 
 For the full learning environment:
@@ -310,7 +311,7 @@ Keep explanations self-contained: introduce the concept here, link to local impl
 
 The [CI workflow](.github/workflows/ci.yml) runs the full test suite, all three
 examples and fresh kernels for all six language-edition notebooks on Python
-3.11.14 and 3.14.6. It uses read-only repository permissions and commit-pinned
+3.11, 3.12, and 3.13. It uses read-only repository permissions and commit-pinned
 actions. Notebook outputs are cleared
 in memory before execution; stored output is never treated as fresh evidence.
 For verification without the JupyterLab UI, install `requirements-ci.txt`.

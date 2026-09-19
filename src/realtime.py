@@ -1,7 +1,7 @@
 """A small frozen overlay contract, not a realtime provider or signature verifier."""
 from dataclasses import dataclass, replace
 from datetime import date
-from .timetable import Timetable, Route, Trip, RoutingError, integer
+from .timetable import Timetable, Route, Trip, RoutingError, integer, identifier
 
 @dataclass(frozen=True)
 class Snapshot:
@@ -16,9 +16,11 @@ class Snapshot:
     def __post_init__(self) -> None:
         object.__setattr__(self, "delays", tuple(tuple(x) for x in self.delays))
         object.__setattr__(self, "cancelled", frozenset(self.cancelled))
+        identifier(self.identity, "snapshot identity")
+        identifier(self.bundle_id, "snapshot bundle id")
         integer(self.observed_at, "observed_at")
         integer(self.valid_until, "valid_until")
-        if not self.identity or self.valid_until <= self.observed_at:
+        if self.valid_until <= self.observed_at:
             raise RoutingError("INVALID_REALTIME", "invalid realtime identity or validity interval")
         if len({key for key, _ in self.delays}) != len(self.delays):
             raise RoutingError("INVALID_REALTIME", "duplicate occurrence update")
