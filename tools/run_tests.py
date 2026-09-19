@@ -12,6 +12,7 @@ import re
 import sys
 import time
 from typing import Any, Callable
+import importlib
 
 
 class RaisesContext:
@@ -80,7 +81,7 @@ def run() -> int:
     print("-" * 72)
 
     for mod_name in TEST_MODULES:
-        mod = __import__(mod_name, fromlist=["*"])
+        mod = importlib.import_module(mod_name)
         fixtures: dict[str, Callable[[], Any]] = {}
         for name, obj in inspect.getmembers(mod):
             if hasattr(obj, "__name__") and name in ("index", "table", "journey"):
