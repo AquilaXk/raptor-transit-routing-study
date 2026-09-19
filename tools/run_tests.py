@@ -8,11 +8,9 @@ from __future__ import annotations
 
 import inspect
 from pathlib import Path
-import re
 import sys
 import time
 from typing import Any, Callable
-import importlib
 
 
 class RaisesContext:
@@ -28,7 +26,7 @@ class RaisesContext:
             raise AssertionError(f"Expected {self.expected.__name__} but no exception was raised")
         if not issubclass(exc_type, self.expected):
             return False
-        if self.match and not re.search(self.match, str(exc_val)):
+        if self.match and self.match not in str(exc_val):
             raise AssertionError(f"Exception message '{exc_val}' did not match pattern '{self.match}'")
         return True
 
@@ -59,16 +57,26 @@ sys.modules["pytest"] = PytestMock()  # type: ignore[assignment]
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+import tests.test_components as test_components
+import tests.test_invariants as test_invariants
+import tests.test_metrics as test_metrics
+import tests.test_structure as test_structure
+import tests.test_walking_tradeoff as test_walking_tradeoff
+import tests.test_witness as test_witness
+import tests.test_raptor as test_raptor
+import tests.test_profiles as test_profiles
+import tests.test_oracle as test_oracle
+
 TEST_MODULES = [
-    "tests.test_components",
-    "tests.test_invariants",
-    "tests.test_metrics",
-    "tests.test_structure",
-    "tests.test_walking_tradeoff",
-    "tests.test_witness",
-    "tests.test_raptor",
-    "tests.test_profiles",
-    "tests.test_oracle",
+    test_components,
+    test_invariants,
+    test_metrics,
+    test_structure,
+    test_walking_tradeoff,
+    test_witness,
+    test_raptor,
+    test_profiles,
+    test_oracle,
 ]
 
 
@@ -80,8 +88,8 @@ def run() -> int:
     print("Running RAPTOR study test suite (Python standard library runner)...")
     print("-" * 72)
 
-    for mod_name in TEST_MODULES:
-        mod = importlib.import_module(mod_name)
+    for mod in TEST_MODULES:
+        mod_name = mod.__name__
         fixtures: dict[str, Callable[[], Any]] = {}
         for name, obj in inspect.getmembers(mod):
             if hasattr(obj, "__name__") and name in ("index", "table", "journey"):
